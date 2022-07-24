@@ -1,5 +1,8 @@
-import Sequelize from 'sequelize';
+import Sequelize, { QueryInterface } from 'sequelize';
 
-export const up = async ({ context: queryInterface }) => {};
+interface IMigrationParams {
+  context: QueryInterface;
+}
+export const up = async ({ context: queryInterface }: IMigrationParams) => {};
 
-export const down = async ({ context: queryInterface }) => {};
+export const down = async ({ context: queryInterface }: IMigrationParams) => {};
