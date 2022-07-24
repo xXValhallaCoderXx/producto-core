@@ -16,6 +16,8 @@ import { User } from './users/user.model';
       password: 'postgres',
       database: 'producto',
       models: [User],
+      synchronize: true,
+      autoLoadModels: true,
     }),
     AuthModule,
     UsersModule,
