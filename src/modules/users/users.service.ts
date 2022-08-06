@@ -20,10 +20,10 @@ export class UsersService {
     await user.destroy();
   }
 
-  findOne(id: string): Promise<User> {
+  findOne(username: string): Promise<User> {
     return this.userModel.findOne({
       where: {
-        id,
+        username,
       },
     });
   }
@@ -32,6 +32,7 @@ export class UsersService {
   //   return await this.userModel.create<User>(data);
   // }
   async create(user: CreateUserDTO): Promise<User> {
+    console.log("HELLO: ", user);
     return await this.userModel.create<User>(user);
   }
 
