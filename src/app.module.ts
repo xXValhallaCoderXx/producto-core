@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { TaskModule } from './modules/tasks/tasks.module';
+import { TaskGroupModule } from './modules/task-group/task-group.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule } from '@nestjs/config';
 
@@ -21,6 +23,8 @@ import { ConfigModule } from '@nestjs/config';
     }),
     AuthModule,
     UsersModule,
+    TaskModule,
+    TaskGroupModule,
   ],
 })
 export class AppModule {}
