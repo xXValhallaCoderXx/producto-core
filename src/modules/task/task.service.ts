@@ -2,12 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Task } from './task.model';
 import { CreateTaskDTO } from './task.dto';
-
+import { UsersService } from 'src/modules/user/users.service';
 @Injectable()
 export class TaskService {
   constructor(
     @InjectModel(Task)
     private taskModel: typeof Task,
+    private usersService: UsersService,
   ) {}
 
   async findAll(): Promise<Task[]> {
@@ -27,15 +28,19 @@ export class TaskService {
     });
   }
 
-  async create(user: CreateTaskDTO): Promise<Task> {
-    return new Promise((res) => {
-      return res(null);
+  async create(data: CreateTaskDTO, req: any): Promise<Task> {
+    console.log('REQ: ', req.user);
+    const user = await this.usersService.findOne(req.user.username);
+    if (!user) {
+      return null;
+    }
+
+    return await this.taskModel.create<Task>({
+      ...data,
+      completed: 'false',
+      status: 'pending',
+      userId: req.user.userId,
     });
-    // return await this.taskModel.create<Task>({
-    //   ...user,
-    //   completed: 'false',
-    //   status: 'pending',
-    // });
   }
 
   //   async update(user: CreateTaskDTO): Promise<Task> {

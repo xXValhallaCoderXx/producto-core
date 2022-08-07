@@ -5,6 +5,7 @@ import {
   Post,
   Body,
   Param,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
@@ -22,8 +23,7 @@ export class TaskController {
   @UseGuards(JwtAuthGuard)
   @Post('')
   async createTask(@Body() body, @Request() req) {
-    console.log('REQ: ', req.user);
-    return this.taskService.create(body);
+    return this.taskService.create(body, req);
   }
 
   @Get(':id')
@@ -32,7 +32,7 @@ export class TaskController {
   }
 
   @Post(':id')
-  async updateTask(@Body() body) {
+  async updateTask(@Body() body, @Req() req) {
     return this.taskService.findOne(body);
   }
 }
