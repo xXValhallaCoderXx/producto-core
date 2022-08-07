@@ -1,4 +1,12 @@
-import { Column, Model, Table, DataType } from 'sequelize-typescript';
+import {
+  Column,
+  Model,
+  Table,
+  DataType,
+  ForeignKey,
+  BelongsTo,
+} from 'sequelize-typescript';
+import { User } from '../user/user.model';
 
 @Table
 export class Task extends Model<Task> {
@@ -25,4 +33,14 @@ export class Task extends Model<Task> {
     allowNull: false,
   })
   completed: string;
+
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  userId: number;
+
+  @BelongsTo(() => User)
+  user: User;
 }

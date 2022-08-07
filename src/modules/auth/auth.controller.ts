@@ -3,8 +3,8 @@ import {
   Request,
   Post,
   UseGuards,
-  Get,
   Body,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from 'src/guards/local.auth.guard';
@@ -25,9 +25,9 @@ export class AuthController {
     return this.authService.registerAccount(body);
   }
 
-  //   @UseGuards(JwtAuthGuard)
-  //   @Get('register')
-  //   getProfile(@Request() req) {
-  //     return req.user;
-  //   }
+  @UseGuards(JwtAuthGuard)
+  @Get('valid')
+  getProfile(@Request() req) {
+    return req.user;
+  }
 }
