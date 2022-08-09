@@ -7,8 +7,13 @@ export class CategoryController {
   constructor(private categoryService: CategoryService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get('valid')
-  getProfile(@Request() req) {
+  @Get('')
+  getCategories(@Request() req) {
+    return this.categoryService.findAll({ id: '1' });
+  }
+
+  @Get('')
+  toggleCategory(@Request() req) {
     return this.categoryService.findAll({ id: '1' });
   }
 }
