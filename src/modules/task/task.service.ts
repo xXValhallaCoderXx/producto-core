@@ -54,16 +54,4 @@ export class TaskService {
       userId: req.user.userId,
     });
   }
-
-  //   async update(user: CreateTaskDTO): Promise<Task> {
-  //     const task = await this.findOne(1);
-  //     if (task) {
-  //     } else {
-  //     }
-  //     // return await this.taskModel.create<Task>({
-  //     //   ...user,
-  //     //   completed: 'false',
-  //     //   status: 'pending',
-  //     // });
-  //   }
 }
