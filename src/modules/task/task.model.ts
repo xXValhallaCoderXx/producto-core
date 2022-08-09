@@ -7,6 +7,7 @@ import {
   BelongsTo,
 } from 'sequelize-typescript';
 import { User } from '../user/user.model';
+import { Category } from '../categories/categories.model';
 
 @Table
 export class Task extends Model<Task> {
@@ -41,6 +42,16 @@ export class Task extends Model<Task> {
   })
   userId: number;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, 'userId')
   user: User;
+
+  @ForeignKey(() => Category)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  categoryId: number;
+
+  @BelongsTo(() => Category, 'categoryId')
+  category: Category;
 }

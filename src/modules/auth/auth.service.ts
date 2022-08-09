@@ -33,13 +33,25 @@ export class AuthService {
   }
 
   async registerAccount(data: RegisterUserDTO) {
+    console.log('REGISTER ACCOUNT: ', data);
     const hashedPassword = await this.hashPassword(data.password);
 
-    const newUser = await this.usersService.create({
-      ...data,
-      password: hashedPassword,
-    });
-    console.log('HASHED: ', newUser);
+    try {
+      const newUser = await this.usersService.create({
+        ...data,
+        password: hashedPassword,
+      });
+      console.log('HASHED: ', newUser);
+
+      return {
+        user: 'ok',
+      };
+    } catch (err) {
+      console.log('Error', err);
+      return {
+        error: 'sdsd',
+      };
+    }
   }
 
   private async hashPassword(password) {
