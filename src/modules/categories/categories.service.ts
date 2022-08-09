@@ -10,12 +10,17 @@ export class CategoryService {
     private categoryModel: typeof Category,
   ) {}
 
-  async findAll(req: any): Promise<any[]> {
-    return this.categoryModel.findAll({
+  async findAll(req: any): Promise<any> {
+    const results = await this.categoryModel.findAll({
       where: {
         userId: req.user.userId,
       },
     });
+    return {
+      status: 'success',
+      data: results,
+      error: null,
+    };
   }
 
   //   async remove(id: number): Promise<void> {
