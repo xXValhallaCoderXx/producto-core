@@ -12,7 +12,7 @@ export class CategoryService {
     private usersService: UsersService,
   ) {}
 
-  async findAll(params: FindAllDto): Promise<any[]> {
+  async findAll(params?: FindAllDto): Promise<any[]> {
     return this.categoryModel.findAll({
       where: {
         userId: params.id,
