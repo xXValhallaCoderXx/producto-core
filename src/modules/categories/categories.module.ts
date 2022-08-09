@@ -1,17 +1,14 @@
 import { Module } from '@nestjs/common';
-// import { TaskService } from './task.service';
-// import { UsersModule } from 'src/modules/users/users.module';
-// import { LocalStrategy } from './local.strategy';
-// import { JwtStrategy } from './jwt.strategy';
-// import { TaskController } from './task.controller';
+import { CategoryController } from './categories.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Category } from './categories.model';
-import { UsersModule } from 'src/modules/user/users.module';
+import { CategoryService } from './categories.service';
+import { UsersModule } from '../user/users.module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([Category])],
-  //   providers: [UsersService],
-  // controllers: [TaskController],
+  imports: [SequelizeModule.forFeature([Category]), UsersModule],
+  providers: [CategoryService],
+  controllers: [CategoryController],
   exports: [SequelizeModule],
 })
 export class CategoryModule {}
