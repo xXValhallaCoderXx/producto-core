@@ -1,4 +1,11 @@
-import { Controller, Request, UseGuards, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Request,
+  UseGuards,
+  Post,
+  Body,
+  Get,
+} from '@nestjs/common';
 import { CategoryService } from './categories.service';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
 import { CreateCategoryDTO, UpdateStatusDTO } from './categories.dto';
@@ -6,6 +13,12 @@ import { CreateCategoryDTO, UpdateStatusDTO } from './categories.dto';
 @Controller('categories')
 export class CategoryController {
   constructor(private categoryService: CategoryService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('')
+  toggleCategory(@Request() req) {
+    return this.categoryService.findAll(req);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Post('')
@@ -18,9 +31,4 @@ export class CategoryController {
   updateStatus(@Body() updateStatusDTO: UpdateStatusDTO, @Request() req) {
     return this.categoryService.updateStatus(updateStatusDTO, req);
   }
-
-  // @Get('')
-  // toggleCategory(@Request() req) {
-  //   return this.categoryService.findAll({ id: '1' });
-  // }
 }

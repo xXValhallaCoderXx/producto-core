@@ -24,12 +24,6 @@ export class Task extends Model<Task> {
   description: string;
 
   @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  status: string;
-
-  @Column({
     type: DataType.BOOLEAN,
     allowNull: false,
   })

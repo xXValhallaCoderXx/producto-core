@@ -3,6 +3,8 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Task } from './task.model';
 import { CreateTaskDTO } from './task.dto';
 import { UsersService } from 'src/modules/user/users.service';
+// import { GetUserTasks } from './task.dto';
+import { Category } from '../categories/categories.model';
 @Injectable()
 export class TaskService {
   constructor(
@@ -11,8 +13,20 @@ export class TaskService {
     private usersService: UsersService,
   ) {}
 
-  async findAll(): Promise<Task[]> {
-    return this.taskModel.findAll();
+  async findAll(data: any, req: any): Promise<Task[]> {
+    return this.taskModel.findAll({
+      where: {
+        userId: req.user.userId,
+      },
+      attributes: ['title', 'description', 'completed', 'createdAt'],
+      include: {
+        model: Category,
+        attributes: ['name', 'active'],
+        where: {
+          active: true,
+        },
+      },
+    });
   }
 
   async remove(id: number): Promise<void> {
@@ -29,7 +43,6 @@ export class TaskService {
   }
 
   async create(data: CreateTaskDTO, req: any): Promise<Task> {
-    console.log('REQ: ', req.user);
     const user = await this.usersService.findOne(req.user.username);
     if (!user) {
       return null;
@@ -38,7 +51,6 @@ export class TaskService {
     return await this.taskModel.create<Task>({
       ...data,
       completed: 'false',
-      status: 'pending',
       userId: req.user.userId,
     });
   }

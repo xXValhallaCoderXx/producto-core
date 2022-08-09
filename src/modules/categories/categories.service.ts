@@ -2,20 +2,18 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Category } from './categories.model';
 import { CreateCategoryDTO, UpdateStatusDTO } from './categories.dto';
-import { UsersService } from 'src/modules/user/users.service';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectModel(Category)
     private categoryModel: typeof Category,
-    private usersService: UsersService,
   ) {}
 
-  async findAll(): Promise<any[]> {
+  async findAll(req: any): Promise<any[]> {
     return this.categoryModel.findAll({
       where: {
-        userId: 1,
+        userId: req.user.userId,
       },
     });
   }
@@ -37,6 +35,7 @@ export class CategoryService {
     try {
       return await this.categoryModel.create<Category>({
         ...data,
+        userId: req.user.userId,
         active: true,
       });
     } catch (err) {
