@@ -9,6 +9,7 @@ import {
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from 'src/guards/local.auth.guard';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
+import { CreateUserDTO } from '../user/user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -16,13 +17,13 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req) {
-    return this.authService.login(req.user);
+  async login(@Request() req, @Body() createUserDTO: CreateUserDTO) {
+    return this.authService.login(createUserDTO, req.user);
   }
 
   @Post('register')
-  async register(@Body() body) {
-    return this.authService.registerAccount(body);
+  async register(@Body() createUserDTO: CreateUserDTO) {
+    return this.authService.registerAccount(createUserDTO);
   }
 
   @UseGuards(JwtAuthGuard)

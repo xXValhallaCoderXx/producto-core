@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Category } from './categories.model';
-import { FindAllDto } from './categories.dto';
+import { CreateCategoryDTO, UpdateStatusDTO } from './categories.dto';
 import { UsersService } from 'src/modules/user/users.service';
 
 @Injectable()
@@ -12,10 +12,10 @@ export class CategoryService {
     private usersService: UsersService,
   ) {}
 
-  async findAll(params?: FindAllDto): Promise<any[]> {
+  async findAll(): Promise<any[]> {
     return this.categoryModel.findAll({
       where: {
-        userId: params.id,
+        userId: 1,
       },
     });
   }
@@ -33,20 +33,30 @@ export class CategoryService {
   //     });
   //   }
 
-  //   async create(data: CreateTaskDTO, req: any): Promise<Task> {
-  //     console.log('REQ: ', req.user);
-  //     const user = await this.usersService.findOne(req.user.username);
-  //     if (!user) {
-  //       return null;
-  //     }
+  async create(data: CreateCategoryDTO, req: any): Promise<Category> {
+    try {
+      return await this.categoryModel.create<Category>({
+        ...data,
+        active: true,
+      });
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException('Error creating category');
+    }
+  }
 
-  //     return await this.taskModel.create<Task>({
-  //       ...data,
-  //       completed: 'false',
-  //       status: 'pending',
-  //       userId: req.user.userId,
-  //     });
-  //   }
+  async updateStatus(data: UpdateStatusDTO, req: any): Promise<any> {
+    try {
+      const result = await this.categoryModel.update<Category>(
+        { active: data.active },
+        { returning: true, where: { id: data.categoryId } },
+      );
+      return result[1][0];
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException('Error updating category');
+    }
+  }
 
   //   async update(user: CreateTaskDTO): Promise<Task> {
   //     const task = await this.findOne(1);

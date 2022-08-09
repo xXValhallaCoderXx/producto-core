@@ -15,7 +15,6 @@ export class Category extends Model<Category> {
   @Column({
     type: DataType.STRING,
     allowNull: false,
-    unique: true,
   })
   name: string;
 

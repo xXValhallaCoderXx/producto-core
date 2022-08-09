@@ -1,8 +1,10 @@
 import * as bcrypt from 'bcrypt';
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { UsersService } from 'src/modules/user/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterUserDTO } from './auto.dto';
+import { CreateUserDTO } from '../user/user.dto';
+import { User } from '../user/user.model';
 @Injectable()
 export class AuthService {
   constructor(
@@ -10,11 +12,14 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOne(username);
+  async validateUser(data: CreateUserDTO): Promise<any> {
+    const user = await this.usersService.findOne(data.username);
 
     if (user) {
-      const isPasswordValid = await bcrypt.compare(pass, user.password);
+      const isPasswordValid = await bcrypt.compare(
+        data.password,
+        user.password,
+      );
       if (isPasswordValid) {
         const { password, ...rest } = user;
         return rest;
@@ -24,7 +29,7 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any) {
+  async login(data: any, user: any) {
     const { id, username } = user.dataValues;
     const payload = { username: username, sub: id };
     return {
@@ -33,7 +38,6 @@ export class AuthService {
   }
 
   async registerAccount(data: RegisterUserDTO) {
-    console.log('REGISTER ACCOUNT: ', data);
     const hashedPassword = await this.hashPassword(data.password);
 
     try {
@@ -41,16 +45,17 @@ export class AuthService {
         ...data,
         password: hashedPassword,
       });
-      console.log('HASHED: ', newUser);
 
       return {
-        user: 'ok',
+        type: 'success',
+        data: {
+          id: newUser.id,
+          username: newUser.username,
+        },
+        error: null,
       };
     } catch (err) {
-      console.log('Error', err);
-      return {
-        error: 'sdsd',
-      };
+      throw new BadRequestException('Username already registered');
     }
   }
 

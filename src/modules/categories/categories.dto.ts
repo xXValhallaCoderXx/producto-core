@@ -1,12 +1,21 @@
-import { IsEmail, IsNotEmpty } from 'class-validator';
-export class FindAllDto {
-  readonly id?: string;
-}
+import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateCategoryDTO {
-  @IsEmail()
-  email: string;
+  @IsNotEmpty()
+  @IsString()
+  name: string;
 
   @IsNotEmpty()
-  password: string;
+  @IsNumber()
+  userId: number;
+}
+
+export class UpdateStatusDTO {
+  @IsNotEmpty()
+  @IsBoolean()
+  active: boolean;
+
+  @IsNotEmpty()
+  @IsNumber()
+  categoryId: number;
 }

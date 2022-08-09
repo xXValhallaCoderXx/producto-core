@@ -19,9 +19,9 @@ import { ConfigModule } from '@nestjs/config';
       username: 'postgres',
       password: 'postgres',
       database: 'producto',
-      sync: {
-        force: true,
-      },
+      // sync: {
+      //   force: true,
+      // },
       synchronize: true,
       autoLoadModels: true,
     }),
