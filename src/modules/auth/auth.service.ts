@@ -1,8 +1,10 @@
 import * as bcrypt from 'bcrypt';
-import { Injectable } from '@nestjs/common';
-import { UsersService } from 'src/modules/users/users.service';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { UsersService } from 'src/modules/user/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterUserDTO } from './auto.dto';
+import { CreateUserDTO } from '../user/user.dto';
+import { User } from '../user/user.model';
 @Injectable()
 export class AuthService {
   constructor(
@@ -10,18 +12,26 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOne(username);
-    const isPasswordValid = await bcrypt.compare(pass, user.password);
-    if (isPasswordValid) {
-      const { password, ...rest } = user;
-      return rest;
+  async validateUser(data: CreateUserDTO): Promise<any> {
+    const user = await this.usersService.findOne(data.username);
+
+    if (user) {
+      const isPasswordValid = await bcrypt.compare(
+        data.password,
+        user.password,
+      );
+      if (isPasswordValid) {
+        const { password, ...rest } = user;
+        return rest;
+      }
     }
+
     return null;
   }
 
-  async login(user: any) {
-    const payload = { username: user.username, sub: user.userId };
+  async login(data: any, user: any) {
+    const { id, username } = user.dataValues;
+    const payload = { username: username, sub: id };
     return {
       access_token: this.jwtService.sign(payload),
     };
@@ -30,11 +40,23 @@ export class AuthService {
   async registerAccount(data: RegisterUserDTO) {
     const hashedPassword = await this.hashPassword(data.password);
 
-    const newUser = await this.usersService.create({
-      ...data,
-      password: hashedPassword,
-    });
-    console.log('HASHED: ', newUser);
+    try {
+      const newUser = await this.usersService.create({
+        ...data,
+        password: hashedPassword,
+      });
+
+      return {
+        type: 'success',
+        data: {
+          id: newUser.id,
+          username: newUser.username,
+        },
+        error: null,
+      };
+    } catch (err) {
+      throw new BadRequestException('Username already registered');
+    }
   }
 
   private async hashPassword(password) {
