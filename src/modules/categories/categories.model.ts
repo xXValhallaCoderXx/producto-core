@@ -24,8 +24,8 @@ export class Category extends Model<Category> {
   })
   active: boolean;
 
-  @HasMany(() => Task)
-  tasks: Task[];
+  // @HasMany(() => Task)
+  // tasks: Task[];
 
   @ForeignKey(() => User)
   @Column({

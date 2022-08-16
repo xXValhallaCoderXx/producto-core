@@ -20,13 +20,13 @@ export class TaskService {
         userId: req.user.userId,
       },
       attributes: ['title', 'description', 'completed', 'createdAt', 'id'],
-      include: {
-        model: Category,
-        attributes: ['name', 'active'],
-        where: {
-          active: true,
-        },
-      },
+      // include: {
+      //   model: Category,
+      //   attributes: ['name', 'active'],
+      //   where: {
+      //     active: true,
+      //   },
+      // },
     });
   }
 
@@ -64,9 +64,13 @@ export class TaskService {
 
     const result = await this.taskModel.update<Task>(
       // @ts-ignore
-      { completed: data.completed },
+      { ...data },
       { returning: true, where: { id: data.taskId, userId: req.user.userId } },
     );
+    console.log(result[1].length === 0);
+    if (result[1].length === 0) {
+      return { success: false };
+    }
     return result[1][0];
   }
 }

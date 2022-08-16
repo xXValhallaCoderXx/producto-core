@@ -29,6 +29,13 @@ export class Task extends Model<Task> {
   })
   completed: string;
 
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  })
+  focus: boolean;
+
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
@@ -39,13 +46,13 @@ export class Task extends Model<Task> {
   @BelongsTo(() => User, 'userId')
   user: User;
 
-  @ForeignKey(() => Category)
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
-  categoryId: number;
+  // @ForeignKey(() => Category)
+  // @Column({
+  //   type: DataType.INTEGER,
+  //   allowNull: false,
+  // })
+  // categoryId: number;
 
-  @BelongsTo(() => Category, 'categoryId')
-  category: Category;
+  // @BelongsTo(() => Category, 'categoryId')
+  // category: Category;
 }
