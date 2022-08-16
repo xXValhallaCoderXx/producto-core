@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Task } from './task.model';
-import { CreateTaskDTO } from './task.dto';
+import { CreateTaskDTO, ToggleTaskCompleteDTO } from './task.dto';
 import { UsersService } from 'src/modules/user/users.service';
 // import { GetUserTasks } from './task.dto';
 import { Category } from '../categories/categories.model';
@@ -18,7 +19,7 @@ export class TaskService {
       where: {
         userId: req.user.userId,
       },
-      attributes: ['title', 'description', 'completed', 'createdAt'],
+      attributes: ['title', 'description', 'completed', 'createdAt', 'id'],
       include: {
         model: Category,
         attributes: ['name', 'active'],
@@ -53,5 +54,19 @@ export class TaskService {
       completed: 'false',
       userId: req.user.userId,
     });
+  }
+
+  async toggleComplete(data: ToggleTaskCompleteDTO, req: any): Promise<any> {
+    const user = await this.usersService.findOne(req.user.username);
+    if (!user) {
+      return null;
+    }
+
+    const result = await this.taskModel.update<Task>(
+      // @ts-ignore
+      { completed: data.completed },
+      { returning: true, where: { id: data.taskId, userId: req.user.userId } },
+    );
+    return result[1][0];
   }
 }
