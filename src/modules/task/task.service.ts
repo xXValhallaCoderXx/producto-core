@@ -19,7 +19,14 @@ export class TaskService {
       where: {
         userId: req.user.userId,
       },
-      attributes: ['title', 'description', 'completed', 'createdAt', 'id'],
+      attributes: [
+        'title',
+        'description',
+        'completed',
+        'createdAt',
+        'id',
+        'focus',
+      ],
       // include: {
       //   model: Category,
       //   attributes: ['name', 'active'],

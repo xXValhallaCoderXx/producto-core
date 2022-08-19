@@ -7,7 +7,7 @@ import {
   BelongsTo,
 } from 'sequelize-typescript';
 import { User } from '../user/user.model';
-import { Category } from '../categories/categories.model';
+// import { Category } from '../categories/categories.model';
 
 @Table
 export class Task extends Model<Task> {
