@@ -34,7 +34,12 @@ const sequelize = new Sequelize(
   }
   if (action === 'up') {
     console.log('Running Migrations');
-    const results = await umzug.up();
+    await umzug.up();
+  }
+
+  if (action === 'down') {
+    console.log('Running Migrations');
+    await umzug.down();
   }
 
   if (action === 'create') {
