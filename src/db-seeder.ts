@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-var-requires */
-import path from 'path';
-import fs from 'fs';
+import path = require('path');
+import fs = require('fs');
 import { Sequelize } from 'sequelize';
 import { Umzug, SequelizeStorage } from 'umzug';
 
@@ -11,13 +12,17 @@ const sequelize = new Sequelize(
 (async () => {
   const umzug = new Umzug({
     migrations: {
-      glob: path.resolve(__dirname, './database/migrations/*.{js,ts}'),
+      glob: path.resolve(__dirname, './database/seed/*.{js,ts}'),
     },
     context: sequelize.getQueryInterface(),
     storage: new SequelizeStorage({ sequelize }),
+    // @ts-ignore
+    storageOptions: {
+      modelName: 'SequelizeSeedMeta',
+    },
     logger: console,
     create: {
-      folder: path.resolve(__dirname, './database/migrations'),
+      folder: path.resolve(__dirname, './database/seed'),
       template: (filepath) => [
         [
           filepath,
@@ -47,7 +52,7 @@ const sequelize = new Sequelize(
     if (!name) {
       throw new Error('Please include a name');
     }
-    console.log('Creating Migration');
+    console.log('Creating Seed Script');
     await umzug.create({ name: `${name}.ts` });
   }
 })().then(() => process.exit());
