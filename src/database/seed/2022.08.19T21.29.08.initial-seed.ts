@@ -6,7 +6,6 @@ interface IMigrationParams {
   context: QueryInterface;
 }
 export const up = async (hello: any) => {
-  console.log("LALA: ", hello)
   // return queryInterface.bulkInsert('Users', [
   //   {
   //     username: 'nate-1',
