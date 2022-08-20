@@ -4,8 +4,9 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Task } from './task.model';
 import { CreateTaskDTO, ToggleTaskCompleteDTO } from './task.dto';
 import { UsersService } from 'src/modules/user/users.service';
-// import { GetUserTasks } from './task.dto';
-import { Category } from '../categories/categories.model';
+import { Op } from 'sequelize';
+import moment = require('moment');
+
 @Injectable()
 export class TaskService {
   constructor(
@@ -14,26 +15,25 @@ export class TaskService {
     private usersService: UsersService,
   ) {}
 
-  async findAll(data: any, req: any): Promise<Task[]> {
+  async findAll(req: any, query: any): Promise<Task[]> {
+    const searchDate = moment(query.date).utc();
+    console.log('SEARCH DATE: ', searchDate);
+    const startDate = searchDate
+      .subtract(2, 'days')
+      .format('YYYY-MM-DD HH:mm:ss');
+    const endDate = searchDate.add(2, 'days').format('YYYY-MM-DD HH:mm:ss');
+    console.log('START DATE ', startDate);
+    console.log('END DATE ', endDate);
     return this.taskModel.findAll({
       where: {
-        userId: req.user.userId,
+        userId: req.user.id,
+        ...(query.date && {
+          createdAt: {
+            $between: ['2018-03-31T21:00:00.000Z', '2018-05-30T05:23:59.007Z'],
+          },
+        }),
       },
-      attributes: [
-        'title',
-        'description',
-        'completed',
-        'createdAt',
-        'id',
-        'focus',
-      ],
-      // include: {
-      //   model: Category,
-      //   attributes: ['name', 'active'],
-      //   where: {
-      //     active: true,
-      //   },
-      // },
+      attributes: ['title', 'completed', 'createdAt', 'id', 'focus'],
     });
   }
 

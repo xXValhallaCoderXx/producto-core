@@ -10,10 +10,6 @@ export class CreateTaskDTO {
   @IsNotEmpty()
   @IsString()
   title: string;
-
-  @IsNotEmpty()
-  @IsString()
-  description: string;
 }
 
 export class ToggleTaskCompleteDTO {

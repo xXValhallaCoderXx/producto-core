@@ -7,6 +7,7 @@ import {
   Param,
   Req,
   UseGuards,
+  Query
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
 import { TaskService } from './task.service';
@@ -17,8 +18,8 @@ export class TaskController {
 
   @UseGuards(JwtAuthGuard)
   @Get('')
-  async allTasks(@Body() getUserTasks: any, @Request() req) {
-    return this.taskService.findAll(getUserTasks, req);
+  async allTasks(@Request() req, @Query() query) {
+    return this.taskService.findAll(req, query);
   }
 
   @UseGuards(JwtAuthGuard)

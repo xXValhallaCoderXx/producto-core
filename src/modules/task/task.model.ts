@@ -17,11 +17,6 @@ export class Task extends Model<Task> {
   })
   title: string;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  description: string;
 
   @Column({
     type: DataType.BOOLEAN,
