@@ -5,37 +5,38 @@ import {
   Post,
   Body,
   Param,
+  Patch,
   Req,
   UseGuards,
   Query
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
 import { TaskService } from './task.service';
-import { ToggleTaskCompleteDTO } from './task.dto';
+import { UpdateTaskParams, UpdateTaskDTO, CreateTaskDTO } from './task.dto';
 @Controller('task')
 export class TaskController {
   constructor(private taskService: TaskService) {}
 
   @UseGuards(JwtAuthGuard)
   @Get('')
-  async allTasks(@Request() req, @Query() query) {
+  async fetchAllUserTasks(@Request() req, @Query() query) {
     return this.taskService.findAll(req, query);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('')
-  async createTask(@Body() body, @Request() req) {
+  async createTask(@Body() body: CreateTaskDTO, @Request() req) {
     return this.taskService.create(body, req);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post(':id')
+  @Patch(':id')
   async updateTask(
-    @Body() body: ToggleTaskCompleteDTO,
+    @Body() body: UpdateTaskDTO,
     @Req() req,
-    // @Param() param,
+    @Param() param: UpdateTaskParams,
   ) {
-    return this.taskService.toggleComplete(body, req);
+    return this.taskService.updateTask(body, req, param);
   }
 
   @UseGuards(JwtAuthGuard)

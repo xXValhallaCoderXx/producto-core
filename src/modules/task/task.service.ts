@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Task } from './task.model';
-import { CreateTaskDTO, ToggleTaskCompleteDTO } from './task.dto';
+import { CreateTaskDTO, UpdateTaskDTO, UpdateTaskParams } from './task.dto';
 import { UsersService } from 'src/modules/user/users.service';
-import { Op } from 'sequelize';
 import moment = require('moment');
 
 @Injectable()
@@ -16,24 +15,14 @@ export class TaskService {
   ) {}
 
   async findAll(req: any, query: any): Promise<Task[]> {
-    const searchDate = moment(query.date).utc();
-    console.log('SEARCH DATE: ', searchDate);
-    const startDate = searchDate
-      .subtract(2, 'days')
-      .format('YYYY-MM-DD HH:mm:ss');
-    const endDate = searchDate.add(2, 'days').format('YYYY-MM-DD HH:mm:ss');
-    console.log('START DATE ', startDate);
-    console.log('END DATE ', endDate);
     return this.taskModel.findAll({
       where: {
         userId: req.user.id,
-        ...(query.date && {
-          createdAt: {
-            $between: ['2018-03-31T21:00:00.000Z', '2018-05-30T05:23:59.007Z'],
-          },
-        }),
+        // ...(query.date && {
+        //   deadline:  moment(query.date).toISOString(),
+        // }),
       },
-      attributes: ['title', 'completed', 'createdAt', 'id', 'focus'],
+      attributes: ['title', 'completed', 'createdAt', 'id', 'focus', "deadline"],
     });
   }
 
@@ -58,26 +47,29 @@ export class TaskService {
 
     return await this.taskModel.create<Task>({
       ...data,
-      completed: 'false',
-      userId: req.user.userId,
+      completed: false,
+      userId: req.user.id,
+      deadline: moment().toISOString(),
     });
   }
 
-  async toggleComplete(data: ToggleTaskCompleteDTO, req: any): Promise<any> {
-    const user = await this.usersService.findUserByEmail(req.user.email);
-    if (!user) {
-      return null;
-    }
-
-    const result = await this.taskModel.update<Task>(
-      // @ts-ignore
+  async updateTask(
+    data: UpdateTaskDTO,
+    req: any,
+    param: UpdateTaskParams,
+  ): Promise<any> {
+    const [rowsUpdated] = await this.taskModel.update<Task>(
       { ...data },
-      { returning: true, where: { id: data.taskId, userId: req.user.userId } },
+      { where: { id: param.id, userId: req.user.id } },
     );
-    console.log(result[1].length === 0);
-    if (result[1].length === 0) {
-      return { success: false };
+    if (rowsUpdated === 1) {
+      return {
+        type: 'success',
+        error: null,
+        data: {},
+      };
+    } else {
+      throw new NotFoundException('Task ID not found');
     }
-    return result[1][0];
   }
 }

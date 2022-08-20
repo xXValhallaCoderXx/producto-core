@@ -10,11 +10,11 @@ interface IMigrationParams {
 }
 
 const TASKS = [
-  {title: "Drink water"},
-  {title: "Skip Skip 15 Min"},
-  {title: "Eat Donut"},
-  {title: "Read book"}
-]
+  { title: 'Drink water' },
+  { title: 'Skip Skip 15 Min' },
+  { title: 'Eat Donut' },
+  { title: 'Read book' },
+];
 
 export const up = async ({ context: queryInterface }: IMigrationParams) => {
   const tasks = [];
@@ -22,9 +22,10 @@ export const up = async ({ context: queryInterface }: IMigrationParams) => {
   for (let index = 0; index < TASKS.length; index++) {
     tasks.push({
       title: TASKS[index].title,
-      createdAt: moment.utc().format('YYYY-MM-DD HH:mm:ss'),
-      updatedAt:  moment.utc().format('YYYY-MM-DD HH:mm:ss'),
+      createdAt: moment().toISOString(),
+      updatedAt: moment().toISOString(),
       completed: 'false',
+      deadline:  moment().toISOString(),
       focus: index % 2 === 0 ? true : false,
       userId: 1,
     });

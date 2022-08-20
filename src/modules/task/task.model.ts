@@ -17,12 +17,17 @@ export class Task extends Model<Task> {
   })
   title: string;
 
+  @Column({
+    type: DataType.DATEONLY,
+    allowNull: false,
+  })
+  deadline: string;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: false,
   })
-  completed: string;
+  completed: boolean;
 
   @Column({
     type: DataType.BOOLEAN,

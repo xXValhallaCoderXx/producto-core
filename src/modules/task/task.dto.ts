@@ -12,38 +12,26 @@ export class CreateTaskDTO {
   title: string;
 }
 
-export class ToggleTaskCompleteDTO {
-  @IsOptional()
-  @IsBoolean()
-  completed?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  focus?: boolean;
-
+export class UpdateTaskParams {
   @IsNotEmpty()
-  @IsNumber()
-  taskId: number;
+  id: string;
 }
 
-export class UpdateStatusDTO {
-  @IsNotEmpty()
+export class UpdateTaskDTO {
+  @IsOptional()
   @IsString()
-  name: string;
+  title: string;
 
-  @IsNotEmpty()
-  @IsNumber()
-  userId: number;
+  @IsOptional()
+  @IsBoolean()
+  completed: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  focus: boolean;
+
+  @IsOptional()
+  @IsString()
+  deadline: string;
 }
 
-// export class GetUserTasks {
-//   // @IsNotEmpty()
-//   // @IsNumber()
-//   // userId: string;
-
-//   // @IsArray()
-//   // categories?: string[];
-
-//   // @IsArray()
-//   // status?: boolean;
-// }
