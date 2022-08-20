@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import path = require('path');
-import fs from 'fs';
+import fs = require('fs');
 import { Sequelize } from 'sequelize';
 import { Umzug, SequelizeStorage } from 'umzug';
 
@@ -16,13 +16,13 @@ const sequelize = new Sequelize({
 (async () => {
   const umzug = new Umzug({
     migrations: {
-      glob: path.resolve(__dirname, '../database/migrations/*.ts'),
+      glob: path.resolve(__dirname, '../database/migrations/*.*.ts'),
     },
     context: sequelize.getQueryInterface(),
     storage: new SequelizeStorage({ sequelize }),
     logger: console,
     create: {
-      folder: path.resolve(__dirname, './database/migrations'),
+      folder: path.resolve(__dirname, '../database/migrations'),
       template: (filepath) => [
         [
           filepath,
@@ -38,7 +38,7 @@ const sequelize = new Sequelize({
     throw new Error('Action is required up | down');
   }
   if (action === 'up') {
-    console.log('Running Migrations');
+    console.log('Running All Migrations');
     await umzug.up();
   }
 
