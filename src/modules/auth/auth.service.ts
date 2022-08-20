@@ -2,7 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { UsersService } from 'src/modules/user/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { RegisterUserDTO } from './auth.dto';
+import { AuthUserDTO } from './auth.dto';
 import { CreateUserDTO } from '../user/user.dto';
 import { User } from '../user/user.model';
 
@@ -37,7 +37,7 @@ export class AuthService {
     };
   }
 
-  async registerAccount(data: RegisterUserDTO) {
+  async registerAccount(data: AuthUserDTO) {
     const hashedPassword = await this.hashPassword(data.password);
 
     try {
@@ -55,8 +55,7 @@ export class AuthService {
         },
       };
     } catch (err) {
-      console.log('ERROR: ', err);
-      throw new BadRequestException('Username already registered');
+      throw new BadRequestException('Email has already been registered');
     }
   }
 

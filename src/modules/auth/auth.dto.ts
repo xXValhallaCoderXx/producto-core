@@ -1,9 +1,12 @@
-export class RegisterUserDTO {
-  readonly email: string;
-  readonly password: string;
-}
+import { IsNotEmpty, IsEmail, Min, Max } from 'class-validator';
 
-export class LoginUserDTO {
-  readonly email: string;
-  readonly password: string;
+export class AuthUserDTO {
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  // @Min(6)
+  // @Max(15)
+  password: string;
 }
