@@ -51,7 +51,7 @@ export class TaskService {
   }
 
   async create(data: CreateTaskDTO, req: any): Promise<Task> {
-    const user = await this.usersService.findOne(req.user.username);
+    const user = await this.usersService.findUserByEmail(req.user.email);
     if (!user) {
       return null;
     }
@@ -64,7 +64,7 @@ export class TaskService {
   }
 
   async toggleComplete(data: ToggleTaskCompleteDTO, req: any): Promise<any> {
-    const user = await this.usersService.findOne(req.user.username);
+    const user = await this.usersService.findUserByEmail(req.user.email);
     if (!user) {
       return null;
     }

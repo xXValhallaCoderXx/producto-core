@@ -9,7 +9,7 @@ import {
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from 'src/guards/local.auth.guard';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
-import { LoginUserDTO, RegisterUserDTO } from './auth.dto';
+import { RegisterUserDTO } from './auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -17,8 +17,10 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req, @Body() loginUserDto: LoginUserDTO) {
-    return this.authService.login(loginUserDto, req.user);
+  async login(@Request() req) {
+    // This will only be invoked if it passes Local Strategy
+    // Req will have a user param injected in
+    return this.authService.login(req.user)
   }
 
   @Post('register')
@@ -28,7 +30,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('valid')
-  getProfile(@Request() req) {
+  checkValid(@Request() req) {
     return req.user;
   }
 }

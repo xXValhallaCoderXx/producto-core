@@ -16,11 +16,11 @@ export class UsersService {
   }
 
   async remove(id: string): Promise<void> {
-    const user = await this.findOne(id);
+    const user = await this.userModel.findOne({ where: { id } });
     await user.destroy();
   }
 
-  findOne(email: string): Promise<User> {
+  findUserByEmail(email: string): Promise<User> {
     return this.userModel.findOne({
       where: {
         email,
@@ -28,14 +28,7 @@ export class UsersService {
     });
   }
 
-  // async create(data): Promise<User> {
-  //   return await this.userModel.create<User>(data);
-  // }
   async create(user: CreateUserDTO): Promise<User> {
     return await this.userModel.create<User>(user);
   }
-
-  // async findOne(username: string): Promise<LocalUsers | undefined> {
-  //   return this.users.find((user) => user.username === username);
-  // }
 }

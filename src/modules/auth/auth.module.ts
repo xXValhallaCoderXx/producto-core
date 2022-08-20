@@ -18,6 +18,7 @@ const jwtFactory = {
   inject: [ConfigService],
 };
 
+
 @Module({
   imports: [UsersModule, PassportModule, JwtModule.registerAsync(jwtFactory)],
   controllers: [AuthController],

@@ -4,6 +4,7 @@ import { UsersService } from 'src/modules/user/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterUserDTO } from './auth.dto';
 import { CreateUserDTO } from '../user/user.dto';
+import { User } from '../user/user.model';
 
 @Injectable()
 export class AuthService {
@@ -12,10 +13,8 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(data: CreateUserDTO): Promise<any> {
-    const user = await this.usersService.findOne(data.email);
-    console.log('USER: ', user.password);
-    console.log('DATA: ', data.password);
+  async validateUser(data: CreateUserDTO): Promise<any | null> {
+    const user = await this.usersService.findUserByEmail(data.email);
     if (user) {
       const isPasswordValid = await bcrypt.compare(
         data.password,
@@ -30,11 +29,11 @@ export class AuthService {
     return null;
   }
 
-  async login(data: any, user: any) {
-    const { id, username } = user.dataValues;
-    const payload = { username: username, sub: id };
+  async login(user: User) {
+    const { id, email } = user;
+    const payload = { email, sub: id };
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(payload)
     };
   }
 
@@ -49,11 +48,11 @@ export class AuthService {
 
       return {
         type: 'success',
+        error: null,
         data: {
           id: newUser.id,
           email: newUser.email,
         },
-        error: null,
       };
     } catch (err) {
       console.log('ERROR: ', err);

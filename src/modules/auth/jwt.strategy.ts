@@ -14,6 +14,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    return { userId: payload.sub, username: payload.username };
+    // JWT Strat automatically verifiy the JWT signature and decodes the JSON
+    // We simply return the decoded JWT
+    // Passport will attach this to user object in req
+
+    // We could get extra data here if needed to inject into req.user
+    return { id: payload.sub, email: payload.email };
   }
 }
