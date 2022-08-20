@@ -2,9 +2,9 @@ import * as bcrypt from 'bcrypt';
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { UsersService } from 'src/modules/user/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { RegisterUserDTO } from './auto.dto';
+import { RegisterUserDTO } from './auth.dto';
 import { CreateUserDTO } from '../user/user.dto';
-import { User } from '../user/user.model';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -13,8 +13,9 @@ export class AuthService {
   ) {}
 
   async validateUser(data: CreateUserDTO): Promise<any> {
-    const user = await this.usersService.findOne(data.username);
-
+    const user = await this.usersService.findOne(data.email);
+    console.log('USER: ', user.password);
+    console.log('DATA: ', data.password);
     if (user) {
       const isPasswordValid = await bcrypt.compare(
         data.password,
@@ -50,11 +51,12 @@ export class AuthService {
         type: 'success',
         data: {
           id: newUser.id,
-          username: newUser.username,
+          email: newUser.email,
         },
         error: null,
       };
     } catch (err) {
+      console.log('ERROR: ', err);
       throw new BadRequestException('Username already registered');
     }
   }

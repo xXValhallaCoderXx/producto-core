@@ -20,10 +20,10 @@ export class UsersService {
     await user.destroy();
   }
 
-  findOne(username: string): Promise<User> {
+  findOne(email: string): Promise<User> {
     return this.userModel.findOne({
       where: {
-        username,
+        email,
       },
     });
   }
