@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthUserDTO } from './auth.dto';
 import { CreateUserDTO } from '../user/user.dto';
 import { User } from '../user/user.model';
-import { PostgresErrorCode } from 'src/database/error-codes';
+import { PostgresErrorCode } from 'src/exceptions/db-exceptions';
 import { InvalidCredentials } from 'src/exceptions/api-exceptions';
 @Injectable()
 export class AuthService {
