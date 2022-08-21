@@ -24,6 +24,11 @@ import { ConfigModule } from '@nestjs/config';
       // },
       synchronize: true,
       autoLoadModels: true,
+      dialectOptions: {
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      },
     }),
     AuthModule,
     UsersModule,
