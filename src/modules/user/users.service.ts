@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './user.model';
 import { CreateUserDTO } from './user.dto';
@@ -17,15 +17,19 @@ export class UsersService {
 
   async remove(id: string): Promise<void> {
     const user = await this.userModel.findOne({ where: { id } });
+    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     await user.destroy();
   }
 
   findUserByEmail(email: string): Promise<User> {
-    return this.userModel.findOne({
+    const user = this.userModel.findOne({
       where: {
         email,
       },
     });
+
+    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    return user;
   }
 
   async create(user: CreateUserDTO): Promise<User> {

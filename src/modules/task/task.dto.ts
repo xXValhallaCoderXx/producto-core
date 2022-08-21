@@ -1,7 +1,7 @@
 import {
   IsBoolean,
   IsNotEmpty,
-  IsNumber,
+  IsNumberString,
   IsString,
   IsOptional,
 } from 'class-validator';
@@ -35,3 +35,7 @@ export class UpdateTaskDTO {
   deadline: string;
 }
 
+export class FindOneParams {
+  @IsNumberString()
+  id: string;
+}

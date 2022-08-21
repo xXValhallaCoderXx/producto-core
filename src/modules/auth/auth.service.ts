@@ -1,11 +1,12 @@
 import * as bcrypt from 'bcrypt';
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { UsersService } from 'src/modules/user/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { AuthUserDTO } from './auth.dto';
 import { CreateUserDTO } from '../user/user.dto';
 import { User } from '../user/user.model';
-
+import { PostgresErrorCode } from 'src/database/error-codes';
+import { InvalidCredentials } from 'src/exceptions/api-exceptions';
 @Injectable()
 export class AuthService {
   constructor(
@@ -14,26 +15,21 @@ export class AuthService {
   ) {}
 
   async validateUser(data: CreateUserDTO): Promise<any | null> {
-    const user = await this.usersService.findUserByEmail(data.email);
-    if (user) {
-      const isPasswordValid = await bcrypt.compare(
-        data.password,
-        user.password,
-      );
-      if (isPasswordValid) {
-        const { password, ...rest } = user;
-        return rest;
-      }
+    try {
+      const user = await this.usersService.findUserByEmail(data.email);
+      await this.verifyPassword(data.password, user.password);
+      user.password = undefined;
+      return user;
+    } catch {
+      throw new InvalidCredentials();
     }
-
-    return null;
   }
 
   async login(user: User) {
     const { id, email } = user;
     const payload = { email, sub: id };
     return {
-      access_token: this.jwtService.sign(payload)
+      access_token: this.jwtService.sign(payload),
     };
   }
 
@@ -55,12 +51,31 @@ export class AuthService {
         },
       };
     } catch (err) {
-      throw new BadRequestException('Email has already been registered');
+      if (err.parent.code === PostgresErrorCode.UniqueViolation) {
+        throw new HttpException(
+          'User with that email already exists',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      throw new HttpException(
+        'Something went wrong',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   private async hashPassword(password) {
     const hash = await bcrypt.hash(password, 10);
     return hash;
+  }
+
+  private async verifyPassword(plainPassword: string, hashedPassword: string) {
+    const isPasswordMatching = await bcrypt.compare(
+      plainPassword,
+      hashedPassword,
+    );
+    if (!isPasswordMatching) {
+      throw new InvalidCredentials();
+    }
   }
 }

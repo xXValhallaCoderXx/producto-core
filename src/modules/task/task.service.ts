@@ -1,10 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Task } from './task.model';
 import { CreateTaskDTO, UpdateTaskDTO, UpdateTaskParams } from './task.dto';
@@ -38,12 +33,12 @@ export class TaskService {
     });
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     const task = await this.findOne(id);
     await task.destroy();
   }
 
-  async findOne(id: number): Promise<Task> {
+  async findOne(id: string): Promise<Task> {
     const task = await this.taskModel.findOne({
       where: {
         id,
