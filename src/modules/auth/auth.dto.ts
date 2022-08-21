@@ -2,7 +2,7 @@ import { IsNotEmpty, IsEmail, MinLength, MaxLength } from 'class-validator';
 
 export class AuthUserDTO {
   @IsNotEmpty()
-  @IsEmail()
+  @IsEmail({}, { message: 'Invalid email address' })
   email: string;
 
   @IsNotEmpty()

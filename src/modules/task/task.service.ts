@@ -22,6 +22,7 @@ export class TaskService {
         //   deadline:  moment(query.date).toISOString(),
         // }),
       },
+      order: [['createdAt', 'ASC']],
       attributes: [
         'title',
         'completed',
