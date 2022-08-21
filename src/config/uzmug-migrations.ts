@@ -1,28 +1,33 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const path = require('path');
-const fs = require('fs');
-const { Sequelize } = require('sequelize');
-const { Umzug, SequelizeStorage } = require('umzug');
+import 'dotenv/config';
+import path = require('path');
+import fs = require('fs');
+import { Sequelize } from 'sequelize';
+import { Umzug, SequelizeStorage } from 'umzug';
 
-const sequelize = new Sequelize(
-  `postgres://postgres:postgres@localhost:5432/producto`,
-);
+const sequelize = new Sequelize({
+  dialect: 'postgres',
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT),
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+});
 
 (async () => {
   const umzug = new Umzug({
     migrations: {
-      glob: path.resolve(__dirname, './database/migrations/*.{js,ts}'),
+      glob: path.resolve(__dirname, '../database/migrations/*.*.ts'),
     },
     context: sequelize.getQueryInterface(),
     storage: new SequelizeStorage({ sequelize }),
     logger: console,
     create: {
-      folder: path.resolve(__dirname, './database/migrations'),
+      folder: path.resolve(__dirname, '../database/migrations'),
       template: (filepath) => [
         [
           filepath,
           fs
-            .readFileSync(path.join(__dirname, 'config/umzug-template.ts'))
+            .readFileSync(path.join(__dirname, './umzug-template.ts'))
             .toString(),
         ],
       ],
@@ -33,8 +38,13 @@ const sequelize = new Sequelize(
     throw new Error('Action is required up | down');
   }
   if (action === 'up') {
+    console.log('Running All Migrations');
+    await umzug.up();
+  }
+
+  if (action === 'down') {
     console.log('Running Migrations');
-    const results = await umzug.up();
+    await umzug.down();
   }
 
   if (action === 'create') {

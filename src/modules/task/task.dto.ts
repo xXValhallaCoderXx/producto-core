@@ -1,33 +1,41 @@
-import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumberString,
+  IsString,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateTaskDTO {
   @IsNotEmpty()
   @IsString()
   title: string;
-
-  @IsNotEmpty()
-  @IsString()
-  description: string;
 }
 
-export class UpdateStatusDTO {
+export class UpdateTaskParams {
   @IsNotEmpty()
-  @IsString()
-  name: string;
-
-  @IsNotEmpty()
-  @IsNumber()
-  userId: number;
+  id: string;
 }
 
-// export class GetUserTasks {
-//   // @IsNotEmpty()
-//   // @IsNumber()
-//   // userId: string;
+export class UpdateTaskDTO {
+  @IsOptional()
+  @IsString()
+  title: string;
 
-//   // @IsArray()
-//   // categories?: string[];
+  @IsOptional()
+  @IsBoolean()
+  completed: boolean;
 
-//   // @IsArray()
-//   // status?: boolean;
-// }
+  @IsOptional()
+  @IsBoolean()
+  focus: boolean;
+
+  @IsOptional()
+  @IsString()
+  deadline: string;
+}
+
+export class FindOneParams {
+  @IsNumberString()
+  id: string;
+}

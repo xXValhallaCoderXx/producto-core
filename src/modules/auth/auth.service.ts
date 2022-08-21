@@ -1,10 +1,12 @@
 import * as bcrypt from 'bcrypt';
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { UsersService } from 'src/modules/user/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { RegisterUserDTO } from './auto.dto';
+import { AuthUserDTO } from './auth.dto';
 import { CreateUserDTO } from '../user/user.dto';
 import { User } from '../user/user.model';
+import { PostgresErrorCode } from 'src/exceptions/db-exceptions';
+import { InvalidCredentials } from 'src/exceptions/api-exceptions';
 @Injectable()
 export class AuthService {
   constructor(
@@ -12,32 +14,26 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(data: CreateUserDTO): Promise<any> {
-    const user = await this.usersService.findOne(data.username);
-
-    if (user) {
-      const isPasswordValid = await bcrypt.compare(
-        data.password,
-        user.password,
-      );
-      if (isPasswordValid) {
-        const { password, ...rest } = user;
-        return rest;
-      }
+  async validateUser(data: CreateUserDTO): Promise<any | null> {
+    try {
+      const user = await this.usersService.findUserByEmail(data.email);
+      await this.verifyPassword(data.password, user.password);
+      // user.password = undefined;
+      return user;
+    } catch {
+      throw new InvalidCredentials();
     }
-
-    return null;
   }
 
-  async login(data: any, user: any) {
-    const { id, username } = user.dataValues;
-    const payload = { username: username, sub: id };
+  async login(user: User) {
+    const { id, email } = user;
+    const payload = { email, sub: id };
     return {
       access_token: this.jwtService.sign(payload),
     };
   }
 
-  async registerAccount(data: RegisterUserDTO) {
+  async registerAccount(data: AuthUserDTO) {
     const hashedPassword = await this.hashPassword(data.password);
 
     try {
@@ -48,19 +44,38 @@ export class AuthService {
 
       return {
         type: 'success',
+        error: null,
         data: {
           id: newUser.id,
-          username: newUser.username,
+          email: newUser.email,
         },
-        error: null,
       };
     } catch (err) {
-      throw new BadRequestException('Username already registered');
+      if (err.parent.code === PostgresErrorCode.UniqueViolation) {
+        throw new HttpException(
+          'User with that email already exists',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      throw new HttpException(
+        'Something went wrong',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   private async hashPassword(password) {
     const hash = await bcrypt.hash(password, 10);
     return hash;
+  }
+
+  private async verifyPassword(plainPassword: string, hashedPassword: string) {
+    const isPasswordMatching = await bcrypt.compare(
+      plainPassword,
+      hashedPassword,
+    );
+    if (!isPasswordMatching) {
+      throw new InvalidCredentials();
+    }
   }
 }

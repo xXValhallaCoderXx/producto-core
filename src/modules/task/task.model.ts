@@ -7,7 +7,7 @@ import {
   BelongsTo,
 } from 'sequelize-typescript';
 import { User } from '../user/user.model';
-import { Category } from '../categories/categories.model';
+// import { Category } from '../categories/categories.model';
 
 @Table
 export class Task extends Model<Task> {
@@ -18,16 +18,23 @@ export class Task extends Model<Task> {
   title: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.DATEONLY,
     allowNull: false,
   })
-  description: string;
+  deadline: string;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: false,
   })
-  completed: string;
+  completed: boolean;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  })
+  focus: boolean;
 
   @ForeignKey(() => User)
   @Column({
@@ -39,13 +46,13 @@ export class Task extends Model<Task> {
   @BelongsTo(() => User, 'userId')
   user: User;
 
-  @ForeignKey(() => Category)
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
-  categoryId: number;
+  // @ForeignKey(() => Category)
+  // @Column({
+  //   type: DataType.INTEGER,
+  //   allowNull: false,
+  // })
+  // categoryId: number;
 
-  @BelongsTo(() => Category, 'categoryId')
-  category: Category;
+  // @BelongsTo(() => Category, 'categoryId')
+  // category: Category;
 }

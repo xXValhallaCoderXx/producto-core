@@ -5,37 +5,48 @@ import {
   Post,
   Body,
   Param,
+  Patch,
   Req,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
 import { TaskService } from './task.service';
-// import { GetUserTasks } from './task.dto';
+import {
+  UpdateTaskParams,
+  UpdateTaskDTO,
+  CreateTaskDTO,
+  FindOneParams,
+} from './task.dto';
 @Controller('task')
 export class TaskController {
   constructor(private taskService: TaskService) {}
 
   @UseGuards(JwtAuthGuard)
   @Get('')
-  async allTasks(@Body() getUserTasks: any, @Request() req) {
-    return this.taskService.findAll(getUserTasks, req);
+  async fetchAllUserTasks(@Request() req, @Query() query) {
+    return this.taskService.findAll(req, query);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('')
-  async createTask(@Body() body, @Request() req) {
+  async createTask(@Body() body: CreateTaskDTO, @Request() req) {
     return this.taskService.create(body, req);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post(':id')
-  async updateTask(@Body() body, @Req() req) {
-    return this.taskService.findOne(body);
+  @Patch(':id')
+  async updateTaskById(
+    @Body() body: UpdateTaskDTO,
+    @Req() req,
+    @Param() param: UpdateTaskParams,
+  ) {
+    return this.taskService.updateTask(body, req, param);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async findTask(@Param() param) {
-    return this.taskService.findOne(param.id);
+  async findTaskById(@Param() { id }: FindOneParams) {
+    return this.taskService.findOne(id);
   }
 }

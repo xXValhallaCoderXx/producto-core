@@ -1,5 +1,7 @@
 import { Column, Model, Table, DataType, HasMany } from 'sequelize-typescript';
 import { Task } from '../task/task.model';
+// import { Exclude } from 'class-transformer';
+
 @Table
 export class User extends Model<User> {
   @Column({
@@ -7,12 +9,13 @@ export class User extends Model<User> {
     allowNull: false,
     unique: true,
   })
-  username: string;
+  email: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
+  // @Exclude()
   password: string;
 
   @HasMany(() => Task)

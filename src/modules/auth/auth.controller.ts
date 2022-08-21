@@ -9,26 +9,29 @@ import {
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from 'src/guards/local.auth.guard';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
-import { CreateUserDTO } from '../user/user.dto';
-
+import { AuthUserDTO } from './auth.dto';
+// import { ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
 @Controller('auth')
+// @UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req, @Body() createUserDTO: CreateUserDTO) {
-    return this.authService.login(createUserDTO, req.user);
+  async login(@Request() req) {
+    // This will only be invoked if it passes Local Strategy
+    // Req will have a user param injected in
+    return this.authService.login(req.user);
   }
 
   @Post('register')
-  async register(@Body() createUserDTO: CreateUserDTO) {
-    return this.authService.registerAccount(createUserDTO);
+  async register(@Body() registerUserDto: AuthUserDTO) {
+    return this.authService.registerAccount(registerUserDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('valid')
-  getProfile(@Request() req) {
+  checkValid(@Request() req) {
     return req.user;
   }
 }
