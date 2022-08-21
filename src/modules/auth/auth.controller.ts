@@ -20,11 +20,12 @@ export class AuthController {
   async login(@Request() req) {
     // This will only be invoked if it passes Local Strategy
     // Req will have a user param injected in
-    return this.authService.login(req.user)
+    return this.authService.login(req.user);
   }
 
   @Post('register')
   async register(@Body() registerUserDto: AuthUserDTO) {
+    console.log('REGIS: ', registerUserDto);
     return this.authService.registerAccount(registerUserDto);
   }
 
