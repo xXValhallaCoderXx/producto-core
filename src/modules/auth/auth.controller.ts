@@ -10,8 +10,9 @@ import { AuthService } from './auth.service';
 import { LocalAuthGuard } from 'src/guards/local.auth.guard';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
 import { AuthUserDTO } from './auth.dto';
-
+// import { ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
 @Controller('auth')
+// @UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
   constructor(private authService: AuthService) {}
 

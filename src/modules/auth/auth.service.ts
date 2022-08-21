@@ -18,7 +18,7 @@ export class AuthService {
     try {
       const user = await this.usersService.findUserByEmail(data.email);
       await this.verifyPassword(data.password, user.password);
-      user.password = undefined;
+      // user.password = undefined;
       return user;
     } catch {
       throw new InvalidCredentials();
