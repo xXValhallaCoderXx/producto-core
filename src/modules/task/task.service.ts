@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Task } from './task.model';
 import { CreateTaskDTO, UpdateTaskDTO, UpdateTaskParams } from './task.dto';
@@ -22,7 +27,14 @@ export class TaskService {
         //   deadline:  moment(query.date).toISOString(),
         // }),
       },
-      attributes: ['title', 'completed', 'createdAt', 'id', 'focus', "deadline"],
+      attributes: [
+        'title',
+        'completed',
+        'createdAt',
+        'id',
+        'focus',
+        'deadline',
+      ],
     });
   }
 
@@ -31,12 +43,15 @@ export class TaskService {
     await task.destroy();
   }
 
-  findOne(id: number): Promise<Task> {
-    return this.taskModel.findOne({
+  async findOne(id: number): Promise<Task> {
+    const task = await this.taskModel.findOne({
       where: {
         id,
       },
     });
+
+    if (!task) throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
+    return task;
   }
 
   async create(data: CreateTaskDTO, req: any): Promise<Task> {
@@ -69,7 +84,7 @@ export class TaskService {
         data: {},
       };
     } else {
-      throw new NotFoundException('Task ID not found');
+      throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
     }
   }
 }
