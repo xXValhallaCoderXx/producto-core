@@ -12,12 +12,11 @@ const jwtFactory = {
   useFactory: async (configService: ConfigService) => ({
     secret: configService.get('JWT_SECRET'),
     signOptions: {
-      expiresIn: configService.get('JWT_EXP_H'),
+      expiresIn: configService.get('JWT_EXP_D'),
     },
   }),
   inject: [ConfigService],
 };
-
 
 @Module({
   imports: [UsersModule, PassportModule, JwtModule.registerAsync(jwtFactory)],

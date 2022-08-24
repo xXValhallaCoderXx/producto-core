@@ -18,9 +18,9 @@ export class TaskService {
     return this.taskModel.findAll({
       where: {
         userId: req.user.id,
-        // ...(query.date && {
-        //   deadline:  moment(query.date).toISOString(),
-        // }),
+        ...(query.date && {
+          deadline: moment(query.date).toISOString(),
+        }),
       },
       order: [['createdAt', 'ASC']],
       attributes: [
