@@ -25,9 +25,11 @@ import { ConfigModule } from '@nestjs/config';
       synchronize: true,
       autoLoadModels: true,
       dialectOptions: {
-        ssl: {
-          rejectUnauthorized: false,
-        },
+        ...(process.env.NODE_ENV !== 'develop' && {
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        }),
       },
     }),
     AuthModule,

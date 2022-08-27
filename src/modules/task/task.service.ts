@@ -2,7 +2,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Task } from './task.model';
-import { CreateTaskDTO, UpdateTaskDTO, UpdateTaskParams } from './task.dto';
+import {
+  CreateTaskDTO,
+  UpdateTaskDTO,
+  UpdateTaskParams,
+  MoveIncompleteDTO,
+} from './task.dto';
 import { UsersService } from 'src/modules/user/users.service';
 import moment = require('moment');
 
@@ -63,6 +68,19 @@ export class TaskService {
       deadline: moment().toISOString(),
     });
   }
+
+  moveIncompleteTasks = async (body: MoveIncompleteDTO, req: any) => {
+    await this.taskModel.update(
+      { deadline: moment(new Date()).format('YYYY-MM-DD') },
+      { where: { userId: req.user.id, deadline: body.date, completed: false } },
+    );
+
+    return {
+      type: 'success',
+      error: null,
+      data: {},
+    };
+  };
 
   async updateTask(
     data: UpdateTaskDTO,

@@ -39,3 +39,8 @@ export class FindOneParams {
   @IsNumberString()
   id: string;
 }
+
+export class MoveIncompleteDTO {
+  @IsString()
+  date: string;
+}

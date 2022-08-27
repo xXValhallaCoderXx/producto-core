@@ -17,7 +17,9 @@ import {
   UpdateTaskDTO,
   CreateTaskDTO,
   FindOneParams,
+  MoveIncompleteDTO,
 } from './task.dto';
+
 @Controller('task')
 export class TaskController {
   constructor(private taskService: TaskService) {}
@@ -48,5 +50,11 @@ export class TaskController {
   @Get(':id')
   async findTaskById(@Param() { id }: FindOneParams) {
     return this.taskService.findOne(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/move-incomplete')
+  async moveIncompleteTasks(@Body() body: MoveIncompleteDTO, @Req() req) {
+    return this.taskService.moveIncompleteTasks(body, req);
   }
 }
