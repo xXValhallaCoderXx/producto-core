@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
+import { InjectModel, SequelizeModule } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
 import { Task } from './task.model';
 import {
   CreateTaskDTO,
@@ -20,11 +21,15 @@ export class TaskService {
   ) {}
 
   async findAll(req: any, query: any): Promise<Task[]> {
+    const TODAY_START = moment(query.date).format('YYYY-MM-DD 00:00');
+    const NOW = moment(query.date).format('YYYY-MM-DD 23:59');
     return this.taskModel.findAll({
       where: {
         userId: req.user.id,
         ...(query.date && {
-          deadline: moment(query.date).toISOString(),
+          deadline: {
+            [Op.between]: [TODAY_START, NOW],
+          },
         }),
       },
       order: [['createdAt', 'ASC']],
@@ -55,7 +60,7 @@ export class TaskService {
     return task;
   }
 
-  async create(data: CreateTaskDTO, req: any): Promise<Task> {
+  async create(data: CreateTaskDTO, req: any): Promise<any> {
     const user = await this.usersService.findUserByEmail(req.user.email);
     if (!user) {
       return null;
@@ -65,14 +70,24 @@ export class TaskService {
       ...data,
       completed: false,
       userId: req.user.id,
-      deadline: moment().toISOString(),
+      deadline: data.deadline,
     });
   }
 
   moveIncompleteTasks = async (body: MoveIncompleteDTO, req: any) => {
+    const TODAY_START = moment(body.date).format('YYYY-MM-DD 00:00');
+    const NOW = moment(body.date).format('YYYY-MM-DD 23:59');
     await this.taskModel.update(
       { deadline: moment(new Date()).format('YYYY-MM-DD') },
-      { where: { userId: req.user.id, deadline: body.date, completed: false } },
+      {
+        where: {
+          userId: req.user.id,
+          deadline: {
+            [Op.between]: [TODAY_START, NOW],
+          },
+          completed: false,
+        },
+      },
     );
 
     return {

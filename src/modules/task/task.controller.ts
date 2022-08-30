@@ -18,6 +18,7 @@ import {
   CreateTaskDTO,
   FindOneParams,
   MoveIncompleteDTO,
+  FetchTasksParams,
 } from './task.dto';
 
 @Controller('task')
@@ -26,7 +27,7 @@ export class TaskController {
 
   @UseGuards(JwtAuthGuard)
   @Get('')
-  async fetchAllUserTasks(@Request() req, @Query() query) {
+  async fetchAllUserTasks(@Request() req, @Query() query: FetchTasksParams) {
     return this.taskService.findAll(req, query);
   }
 
