@@ -4,17 +4,27 @@ import {
   IsNumberString,
   IsString,
   IsOptional,
+  IsDateString,
 } from 'class-validator';
 
 export class CreateTaskDTO {
   @IsNotEmpty()
   @IsString()
   title: string;
+
+  @IsNotEmpty()
+  @IsDateString()
+  deadline: string;
 }
 
 export class UpdateTaskParams {
   @IsNotEmpty()
   id: string;
+}
+
+export class FetchTasksParams {
+  @IsDateString()
+  date: string;
 }
 
 export class UpdateTaskDTO {
@@ -31,7 +41,7 @@ export class UpdateTaskDTO {
   focus: boolean;
 
   @IsOptional()
-  @IsString()
+  @IsDateString()
   deadline: string;
 }
 
@@ -41,6 +51,6 @@ export class FindOneParams {
 }
 
 export class MoveIncompleteDTO {
-  @IsString()
+  @IsDateString()
   date: string;
 }

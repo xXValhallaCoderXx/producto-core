@@ -18,7 +18,7 @@ export class Task extends Model<Task> {
   title: string;
 
   @Column({
-    type: DataType.DATEONLY,
+    type: DataType.DATE,
     allowNull: false,
   })
   deadline: string;
