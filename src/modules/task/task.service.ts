@@ -44,6 +44,33 @@ export class TaskService {
     });
   }
 
+  async findAllIncompleteTasks(req: any): Promise<string[]> {
+    const incompleteDates = await this.taskModel.findAll({
+      where: {
+        userId: req.user.id,
+        completed: false,
+      },
+      order: [['createdAt', 'ASC']],
+      attributes: [
+        'title',
+        'completed',
+        'createdAt',
+        'id',
+        'focus',
+        'deadline',
+      ],
+    });
+    const incompleteTasksOn = [
+      ...new Set(
+        incompleteDates.map((item) =>
+          moment(item.deadline).format('YYYY-MM-DD'),
+        ),
+      ),
+    ];
+
+    return incompleteTasksOn;
+  }
+
   async remove(id: string): Promise<void> {
     const task = await this.findOne(id);
     await task.destroy();
@@ -65,7 +92,8 @@ export class TaskService {
     if (!user) {
       return null;
     }
-
+    console.log('WHAT IS THAT: ', data);
+    console.log('DEADLINE: ', data.deadline);
     return await this.taskModel.create<Task>({
       ...data,
       completed: false,
