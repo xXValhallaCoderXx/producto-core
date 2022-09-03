@@ -6,7 +6,10 @@ import { AuthUserDTO } from './auth.dto';
 import { CreateUserDTO } from '../user/user.dto';
 import { User } from '../user/user.model';
 import { PostgresErrorCode } from 'src/exceptions/db-exceptions';
-import { InvalidCredentials } from 'src/exceptions/api-exceptions';
+import {
+  InvalidCredentials,
+  RecordNotFound,
+} from 'src/exceptions/api-exceptions';
 @Injectable()
 export class AuthService {
   constructor(
@@ -62,6 +65,14 @@ export class AuthService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async verifyEmail(email) {
+    const user = await this.usersService.findUserByEmail(email);
+    if (!user) {
+      throw new RecordNotFound('Email not found');
+    }
+    return true;
   }
 
   private async hashPassword(password) {

@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsEmail, MinLength, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsEmail,
+  MinLength,
+  MaxLength,
+  IsString,
+} from 'class-validator';
 
 export class AuthUserDTO {
   @IsNotEmpty()
@@ -9,4 +15,10 @@ export class AuthUserDTO {
   @MinLength(6)
   @MaxLength(15)
   password: string;
+}
+
+export class VerifyEmailParams {
+  @IsString()
+  @IsEmail()
+  email: string;
 }
