@@ -36,7 +36,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('valid')
+  @Get('profile')
   checkValid(@Request() req) {
     return req.user;
   }

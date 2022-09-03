@@ -32,6 +32,12 @@ export class TaskController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('incomplete')
+  async fetchAllUserIncompleteTasks(@Request() req) {
+    return this.taskService.findAllIncompleteTasks(req);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('')
   async createTask(@Body() body: CreateTaskDTO, @Request() req) {
     return this.taskService.create(body, req);
