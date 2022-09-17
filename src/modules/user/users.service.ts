@@ -33,6 +33,9 @@ export class UsersService {
   }
 
   async create(user: CreateUserDTO): Promise<User> {
-    return await this.userModel.create<User>(user);
+    return await this.userModel.create<User>({
+      ...user,
+      email: user.email.toLowerCase(),
+    });
   }
 }
