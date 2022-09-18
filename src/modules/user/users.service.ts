@@ -3,10 +3,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './user.model';
 import { CreateUserDTO, UpdatePasswordDTO } from './user.dto';
-import {
-  InvalidCredentials,
-  RecordNotFound,
-} from 'src/exceptions/api-exceptions';
+import { InvalidCredentials } from 'src/exceptions/api-exceptions';
 @Injectable()
 export class UsersService {
   constructor(
