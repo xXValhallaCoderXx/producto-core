@@ -26,8 +26,8 @@ export class UserController {
 
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @UseGuards(JwtAuthGuard)
-  @Patch('update-perfs')
-  async login(@Request() req, @Body() body: UpdatePerfsDTO) {
+  @Patch('update-prefs')
+  async updatePrefs(@Request() req, @Body() body: UpdatePerfsDTO) {
     // This will only be invoked if it passes Local Strategy
     // Req will have a user param injected in
     return this.userService.updatePerfs(req.user.id, body);

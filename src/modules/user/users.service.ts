@@ -60,7 +60,6 @@ export class UsersService {
       },
       attributes: ['id', 'email', 'prefs'],
     });
-
     user.prefs = {
       ...user.prefs,
       ...body,
