@@ -5,6 +5,8 @@ import {
   Patch,
   Body,
   Get,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
@@ -22,6 +24,7 @@ export class UserController {
     return this.userService.findUserById(req.user.id);
   }
 
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @UseGuards(JwtAuthGuard)
   @Patch('update-perfs')
   async login(@Request() req, @Body() body: UpdatePerfsDTO) {

@@ -58,6 +58,7 @@ export class UsersService {
       where: {
         id: userId,
       },
+      attributes: ['id', 'email', 'prefs'],
     });
 
     user.prefs = {
