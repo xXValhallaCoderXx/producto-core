@@ -34,10 +34,4 @@ export class AuthController {
   async verifyEmail(@Query() query: VerifyEmailParams) {
     return this.authService.verifyEmail(query.email);
   }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  checkValid(@Request() req) {
-    return req.user;
-  }
 }

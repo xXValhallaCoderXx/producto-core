@@ -1,4 +1,11 @@
-import { Controller, Request, UseGuards, Patch, Body } from '@nestjs/common';
+import {
+  Controller,
+  Request,
+  UseGuards,
+  Patch,
+  Body,
+  Get,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
 import { UpdatePerfsDTO } from './user.dto';
@@ -8,6 +15,12 @@ import { UpdatePerfsDTO } from './user.dto';
 // @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(private userService: UsersService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  checkValid(@Request() req) {
+    return this.userService.findUserById(req.user.id);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Patch('update-perfs')

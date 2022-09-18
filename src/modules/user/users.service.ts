@@ -31,6 +31,18 @@ export class UsersService {
     return user;
   }
 
+  findUserById(id: string): Promise<User> {
+    const user = this.userModel.findOne({
+      where: {
+        id,
+      },
+      attributes: ['id', 'email', 'prefs'],
+    });
+
+    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    return user;
+  }
+
   async create(user: CreateUserDTO): Promise<User> {
     return await this.userModel.create<User>({
       ...user,
