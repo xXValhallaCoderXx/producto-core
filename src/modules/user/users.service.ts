@@ -1,8 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './user.model';
-import { CreateUserDTO } from './user.dto';
-// This should be a real class/interface representing a user entity
+import { CreateUserDTO, UpdatePerfsDTO } from './user.dto';
 
 @Injectable()
 export class UsersService {
@@ -36,6 +35,25 @@ export class UsersService {
     return await this.userModel.create<User>({
       ...user,
       email: user.email.toLowerCase(),
+      prefs: {
+        autoMove: false,
+      },
     });
+  }
+
+  async updatePerfs(userId: any, body: any): Promise<any> {
+    const user = await this.userModel.findOne({
+      where: {
+        id: userId,
+      },
+    });
+
+    user.prefs = {
+      ...user.prefs,
+      ...body,
+    };
+
+    await user.save();
+    return user;
   }
 }
