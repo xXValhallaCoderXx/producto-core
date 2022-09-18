@@ -72,7 +72,6 @@ export class TaskService {
   }
 
   async findAllIncompleteDetailTasks(req: any): Promise<any[]> {
-
     const incompleteDates = await this.taskModel.findAll({
       where: {
         userId: req.user.id,
