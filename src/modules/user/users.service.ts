@@ -24,7 +24,7 @@ export class UsersService {
   findUserByEmail(email: string): Promise<User> {
     const user = this.userModel.findOne({
       where: {
-        email,
+        email: email.toLowerCase(),
       },
     });
 

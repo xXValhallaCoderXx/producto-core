@@ -71,6 +71,27 @@ export class TaskService {
     return incompleteTasksOn;
   }
 
+  async findAllIncompleteDetailTasks(req: any): Promise<any[]> {
+
+    const incompleteDates = await this.taskModel.findAll({
+      where: {
+        userId: req.user.id,
+        completed: false,
+      },
+      order: [['deadline', 'ASC']],
+      attributes: [
+        'title',
+        'completed',
+        'createdAt',
+        'id',
+        'focus',
+        'deadline',
+      ],
+    });
+
+    return incompleteDates;
+  }
+
   async remove(id: string): Promise<void> {
     const task = await this.findOne(id);
     await task.destroy();
