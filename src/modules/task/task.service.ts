@@ -8,6 +8,7 @@ import {
   UpdateTaskDTO,
   UpdateTaskParams,
   MoveIncompleteDTO,
+  MoveTasksDTO,
 } from './task.dto';
 import { UsersService } from 'src/modules/user/users.service';
 import moment = require('moment');
@@ -67,7 +68,7 @@ export class TaskService {
         ),
       ),
     ];
-
+    console.log('INCOPMPLETR DATES', incompleteDates);
     return incompleteTasksOn;
   }
 
@@ -87,7 +88,6 @@ export class TaskService {
         'deadline',
       ],
     });
-
     return incompleteDates;
   }
 
@@ -144,6 +144,25 @@ export class TaskService {
     };
   };
 
+  moveIncompleteTasks2 = async (body: MoveTasksDTO, req: any) => {
+    await this.taskModel.update(
+      { deadline: body.to },
+      {
+        where: {
+          userId: req.user.id,
+          id: body.tasks,
+          completed: false,
+        },
+      },
+    );
+
+    return {
+      type: 'success',
+      error: null,
+      data: {},
+    };
+  };
+
   async updateTask(
     data: UpdateTaskDTO,
     req: any,
@@ -153,6 +172,23 @@ export class TaskService {
       { ...data },
       { where: { id: param.id, userId: req.user.id } },
     );
+    if (rowsUpdated === 1) {
+      return {
+        type: 'success',
+        error: null,
+        data: {},
+      };
+    } else {
+      throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
+    }
+  }
+
+  async deleteTask(req: any, param: UpdateTaskParams): Promise<any> {
+    const rowsUpdated = await this.taskModel.destroy({
+      where: {
+        id: param.id,
+      },
+    });
     if (rowsUpdated === 1) {
       return {
         type: 'success',

@@ -6,6 +6,7 @@ import {
   Body,
   Param,
   Patch,
+  Delete,
   Req,
   UseGuards,
   Query,
@@ -21,6 +22,7 @@ import {
   FindOneParams,
   MoveIncompleteDTO,
   FetchTasksParams,
+  MoveTasksDTO,
 } from './task.dto';
 
 @Controller('task')
@@ -41,24 +43,6 @@ export class TaskController {
     return this.taskService.create(body, req);
   }
 
-  // Update task by ID
-  @UseGuards(JwtAuthGuard)
-  @Patch(':id')
-  async updateTaskById(
-    @Body() body: UpdateTaskDTO,
-    @Req() req,
-    @Param() param: UpdateTaskParams,
-  ) {
-    return this.taskService.updateTask(body, req, param);
-  }
-
-  // Find Task By ID
-  @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  async findTaskById(@Param() { id }: FindOneParams) {
-    return this.taskService.findOne(id);
-  }
-
   @UseGuards(JwtAuthGuard)
   @Get('incomplete')
   async fetchAllUserIncompleteTasks(@Request() req) {
@@ -73,8 +57,39 @@ export class TaskController {
 
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @UseGuards(JwtAuthGuard)
-  @Post('/move-incomplete')
+  @Post('move-incomplete')
   async moveIncompleteTasks(@Body() body: MoveIncompleteDTO, @Req() req) {
     return this.taskService.moveIncompleteTasks(body, req);
+  }
+
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @UseGuards(JwtAuthGuard)
+  @Post('move-incomplete-array')
+  async moveIncompleteTasksArray(@Body() body: MoveTasksDTO, @Req() req) {
+    return this.taskService.moveIncompleteTasks2(body, req);
+  }
+
+  // Update task by ID
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async updateTaskById(
+    @Body() body: UpdateTaskDTO,
+    @Req() req,
+    @Param() param: UpdateTaskParams,
+  ) {
+    return this.taskService.updateTask(body, req, param);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async deleteTaskById(@Req() req, @Param() param: UpdateTaskParams) {
+    return this.taskService.deleteTask(req, param);
+  }
+
+  // Find Task By ID
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  async findTaskById(@Param() { id }: FindOneParams) {
+    return this.taskService.findOne(id);
   }
 }

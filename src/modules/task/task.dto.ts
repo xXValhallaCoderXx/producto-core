@@ -5,6 +5,7 @@ import {
   IsString,
   IsOptional,
   IsDateString,
+  IsArray,
 } from 'class-validator';
 
 export class CreateTaskDTO {
@@ -53,6 +54,14 @@ export class FindOneParams {
 export class MoveIncompleteDTO {
   @IsDateString()
   from: string;
+
+  @IsDateString()
+  to: string;
+}
+
+export class MoveTasksDTO {
+  @IsArray()
+  tasks: string[];
 
   @IsDateString()
   to: string;
