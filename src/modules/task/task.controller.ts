@@ -9,6 +9,8 @@ import {
   Req,
   UseGuards,
   Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
 import { TaskService } from './task.service';
@@ -69,6 +71,7 @@ export class TaskController {
     return this.taskService.findAllIncompleteDetailTasks(req);
   }
 
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @UseGuards(JwtAuthGuard)
   @Post('/move-incomplete')
   async moveIncompleteTasks(@Body() body: MoveIncompleteDTO, @Req() req) {

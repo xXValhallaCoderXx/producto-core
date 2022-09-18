@@ -112,8 +112,7 @@ export class TaskService {
     if (!user) {
       return null;
     }
-    console.log('WHAT IS THAT: ', data);
-    console.log('DEADLINE: ', data.deadline);
+
     return await this.taskModel.create<Task>({
       ...data,
       completed: false,
@@ -123,10 +122,10 @@ export class TaskService {
   }
 
   moveIncompleteTasks = async (body: MoveIncompleteDTO, req: any) => {
-    const TODAY_START = moment(body.date).format('YYYY-MM-DD 00:00');
-    const NOW = moment(body.date).format('YYYY-MM-DD 23:59');
+    const TODAY_START = moment(body.from).format('YYYY-MM-DD 00:00');
+    const NOW = moment(body.from).format('YYYY-MM-DD 23:59');
     await this.taskModel.update(
-      { deadline: moment(new Date()).format('YYYY-MM-DD') },
+      { deadline: body.to },
       {
         where: {
           userId: req.user.id,

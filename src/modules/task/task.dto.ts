@@ -52,5 +52,8 @@ export class FindOneParams {
 
 export class MoveIncompleteDTO {
   @IsDateString()
-  date: string;
+  from: string;
+
+  @IsDateString()
+  to: string;
 }
