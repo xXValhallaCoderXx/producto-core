@@ -10,11 +10,9 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
-import { UpdatePerfsDTO } from './user.dto';
+import { UpdatePerfsDTO, UpdatePasswordDTO } from './user.dto';
 
-// import { ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
 @Controller('user')
-// @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(private userService: UsersService) {}
 
@@ -26,10 +24,15 @@ export class UserController {
 
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @UseGuards(JwtAuthGuard)
+  @Patch('update-password')
+  async updatePassword(@Request() req, @Body() body: UpdatePasswordDTO) {
+    return this.userService.updatePassword(req.user.id, body);
+  }
+
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @UseGuards(JwtAuthGuard)
   @Patch('update-prefs')
   async updatePrefs(@Request() req, @Body() body: UpdatePerfsDTO) {
-    // This will only be invoked if it passes Local Strategy
-    // Req will have a user param injected in
     return this.userService.updatePerfs(req.user.id, body);
   }
 }

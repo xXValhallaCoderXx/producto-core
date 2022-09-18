@@ -13,3 +13,11 @@ export class UpdatePerfsDTO {
   @IsBoolean()
   autoMove: boolean;
 }
+
+export class UpdatePasswordDTO {
+  @IsNotEmpty()
+  oldPassword: string;
+
+  @IsNotEmpty()
+  newPassword: string;
+}

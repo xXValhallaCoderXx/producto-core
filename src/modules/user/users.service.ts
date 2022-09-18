@@ -1,8 +1,12 @@
+import * as bcrypt from 'bcrypt';
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './user.model';
-import { CreateUserDTO, UpdatePerfsDTO } from './user.dto';
-
+import { CreateUserDTO, UpdatePasswordDTO } from './user.dto';
+import {
+  InvalidCredentials,
+  RecordNotFound,
+} from 'src/exceptions/api-exceptions';
 @Injectable()
 export class UsersService {
   constructor(
@@ -53,7 +57,7 @@ export class UsersService {
     });
   }
 
-  async updatePerfs(userId: any, body: any): Promise<any> {
+  async updatePerfs(userId: any, body: any): Promise<User> {
     const user = await this.userModel.findOne({
       where: {
         id: userId,
@@ -65,6 +69,35 @@ export class UsersService {
       ...body,
     };
 
+    await user.save();
+    return user;
+  }
+
+  private async verifyPassword(plainPassword: string, hashedPassword: string) {
+    const isPasswordMatching = await bcrypt.compare(
+      plainPassword,
+      hashedPassword,
+    );
+    if (!isPasswordMatching) {
+      throw new InvalidCredentials();
+    }
+  }
+
+  private async hashPassword(password) {
+    const hash = await bcrypt.hash(password, 10);
+    return hash;
+  }
+
+  async updatePassword(userId: any, body: UpdatePasswordDTO): Promise<User> {
+    const user = await this.userModel.findOne({
+      where: {
+        id: userId,
+      },
+    });
+
+    await this.verifyPassword(body.oldPassword.toString(), user.password);
+    const hashedPassword = await this.hashPassword(body.newPassword.toString());
+    user.password = hashedPassword;
     await user.save();
     return user;
   }
