@@ -10,6 +10,7 @@ import {
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from 'src/guards/local.auth.guard';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
+import { RefreshTokenAuthGuard } from 'src/guards/jwt-refresh.auth.guard';
 import { AuthUserDTO, VerifyEmailParams } from './auth.dto';
 // import { ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
 @Controller('auth')
@@ -43,7 +44,7 @@ export class AuthController {
     return this.authService.verifyEmail(query.email);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RefreshTokenAuthGuard)
   @Get('refresh-jwt')
   async refreshJwt(@Request() req) {
     return this.authService.refreshJwt(req.user);
