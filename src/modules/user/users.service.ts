@@ -3,7 +3,10 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './user.model';
 import { CreateUserDTO, UpdatePasswordDTO } from './user.dto';
-import { InvalidCredentials } from 'src/exceptions/api-exceptions';
+import {
+  InvalidCredentials,
+  RecordNotFound,
+} from 'src/exceptions/api-exceptions';
 @Injectable()
 export class UsersService {
   constructor(
@@ -95,6 +98,24 @@ export class UsersService {
     await this.verifyPassword(body.oldPassword.toString(), user.password);
     const hashedPassword = await this.hashPassword(body.newPassword.toString());
     user.password = hashedPassword;
+    await user.save();
+    return user;
+  }
+
+  async updateRefreshToken({ userId, plainToken }): Promise<User> {
+    const user = await this.userModel.findOne({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new RecordNotFound('User not found');
+    }
+    console.log('PLAIN TOKEN', plainToken);
+    const hashedToken = await this.hashPassword(plainToken);
+    console.log('HASHED ', hashedToken);
+    user.refeshToken = hashedToken;
     await user.save();
     return user;
   }

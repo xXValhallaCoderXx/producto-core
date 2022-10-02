@@ -25,6 +25,14 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('logout')
+  async logout(@Request() req) {
+    // This will only be invoked if it passes Local Strategy
+    // Req will have a user param injected in
+    return this.authService.logout(req.user);
+  }
+
   @Post('register')
   async register(@Body() registerUserDto: AuthUserDTO) {
     return this.authService.registerAccount(registerUserDto);
@@ -33,5 +41,11 @@ export class AuthController {
   @Get('verify-email')
   async verifyEmail(@Query() query: VerifyEmailParams) {
     return this.authService.verifyEmail(query.email);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('refresh-jwt')
+  async refreshJwt(@Request() req) {
+    return this.authService.refreshJwt(req.user);
   }
 }

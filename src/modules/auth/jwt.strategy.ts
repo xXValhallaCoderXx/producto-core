@@ -14,6 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
+    console.log('PAYLOAD: ', payload);
     // JWT Strat automatically verifiy the JWT signature and decodes the JSON
     // We simply return the decoded JWT
     // Passport will attach this to user object in req

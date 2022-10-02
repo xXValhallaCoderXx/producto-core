@@ -23,6 +23,12 @@ export class User extends Model<User> {
   })
   password: string;
 
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  refeshToken: string;
+
   @Default({ autoMove: false })
   @Column(DataType.JSONB)
   prefs!: object;
