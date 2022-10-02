@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel, SequelizeModule } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { Task } from './task.model';
@@ -68,7 +73,6 @@ export class TaskService {
         ),
       ),
     ];
-    console.log('INCOPMPLETR DATES', incompleteDates);
     return incompleteTasksOn;
   }
 
@@ -145,7 +149,7 @@ export class TaskService {
   };
 
   moveIncompleteTasks2 = async (body: MoveTasksDTO, req: any) => {
-    await this.taskModel.update(
+    const response = await this.taskModel.update(
       { deadline: body.to },
       {
         where: {

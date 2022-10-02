@@ -64,7 +64,7 @@ export class TaskController {
 
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @UseGuards(JwtAuthGuard)
-  @Post('move-incomplete-array')
+  @Post('move-specific')
   async moveIncompleteTasksArray(@Body() body: MoveTasksDTO, @Req() req) {
     return this.taskService.moveIncompleteTasks2(body, req);
   }

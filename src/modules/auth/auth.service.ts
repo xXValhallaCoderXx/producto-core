@@ -133,7 +133,7 @@ export class AuthService {
         },
         {
           secret: this.configService.get<string>('JWT_SECRET'),
-          expiresIn: '10s',
+          expiresIn: this.configService.get<string>('JWT_SECRET_EXPIRY'),
         },
       ),
       this.jwtService.signAsync(
@@ -143,7 +143,7 @@ export class AuthService {
         },
         {
           secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
-          expiresIn: '1m',
+          expiresIn: this.configService.get<string>('JWT_REFRESH_SECRET'),
         },
       ),
     ]);
