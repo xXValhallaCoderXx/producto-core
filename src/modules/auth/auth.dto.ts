@@ -19,6 +19,6 @@ export class AuthUserDTO {
 
 export class VerifyEmailParams {
   @IsString()
-  @IsEmail()
+  @IsEmail({}, { message: 'Invalid email address' })
   email: string;
 }
