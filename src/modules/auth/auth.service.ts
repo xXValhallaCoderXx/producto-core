@@ -46,8 +46,6 @@ export class AuthService {
       userId: id,
       plainToken: refreshToken,
     });
-    console.log('LOGIN SUCCESS ACCESS TOKEN: ', accessToken);
-    console.log('LOGIN SUCCESS REFRESH TOKEN: ', refreshToken);
     return { accessToken, refreshToken };
   }
 
@@ -63,13 +61,10 @@ export class AuthService {
   async refreshJwt(req: any) {
     const { email, sub: userId, refreshToken } = req;
     const user = await this.usersService.findUserByEmail(email);
-    console.log('USER TOKEN PAYLOAD: ', refreshToken);
-    console.log('USER SAVED DB: ', user.refeshToken);
     await this.verifySecret({
       hashed: user.refeshToken,
       plain: refreshToken,
     });
-    console.log('VERIFY SECRET SUCCESS');
     const newTokens = await this.getTokens(userId, email);
     await this.usersService.updateRefreshToken({
       userId,
@@ -138,7 +133,7 @@ export class AuthService {
         },
         {
           secret: this.configService.get<string>('JWT_SECRET'),
-          expiresIn: '1m',
+          expiresIn: '10s',
         },
       ),
       this.jwtService.signAsync(
@@ -148,7 +143,7 @@ export class AuthService {
         },
         {
           secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
-          expiresIn: '3m',
+          expiresIn: '1m',
         },
       ),
     ]);
