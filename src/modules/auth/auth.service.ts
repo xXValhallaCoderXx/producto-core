@@ -82,12 +82,20 @@ export class AuthService {
         password: hashedPassword,
       });
 
+      const newTokens = await this.getTokens(newUser.id, newUser.email);
+      await this.usersService.updateRefreshToken({
+        userId: newUser.id,
+        plainToken: newTokens.refreshToken,
+      });
+
       return {
         type: 'success',
         error: null,
         data: {
           id: newUser.id,
           email: newUser.email,
+          accessToken: newTokens.accessToken,
+          refreshToken: newTokens.refreshToken,
         },
       };
     } catch (err) {
