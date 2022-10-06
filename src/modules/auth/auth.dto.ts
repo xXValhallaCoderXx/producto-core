@@ -22,3 +22,12 @@ export class VerifyEmailParams {
   @IsEmail({}, { message: 'Invalid email address' })
   email: string;
 }
+
+export class UpdateEmailDTO {
+  @IsNotEmpty()
+  password: string;
+
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+}

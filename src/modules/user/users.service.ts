@@ -40,7 +40,7 @@ export class UsersService {
       where: {
         id,
       },
-      attributes: ['id', 'email', 'prefs'],
+      attributes: ['id', 'email', 'prefs', "password"],
     });
 
     if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -102,6 +102,33 @@ export class UsersService {
     return user;
   }
 
+  // private async getTokens(userId: string, email: string) {
+  //   const [accessToken, refreshToken] = await Promise.all([
+  //     this.jwtService.signAsync(
+  //       {
+  //         sub: userId,
+  //         email,
+  //       },
+  //       {
+  //         secret: this.configService.get<string>('JWT_SECRET'),
+  //         expiresIn: this.configService.get<string>('JWT_SECRET_EXPIRY'),
+  //       },
+  //     ),
+  //     this.jwtService.signAsync(
+  //       {
+  //         sub: userId,
+  //         email,
+  //       },
+  //       {
+  //         secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
+  //         expiresIn: this.configService.get<string>('JWT_REFRESH_SECRET'),
+  //       },
+  //     ),
+  //   ]);
+
+  //   return { accessToken, refreshToken };
+  // }
+
   async updateRefreshToken({ userId, plainToken }): Promise<User> {
     const user = await this.userModel.findOne({
       where: {
@@ -112,9 +139,7 @@ export class UsersService {
     if (!user) {
       throw new RecordNotFound('User not found');
     }
-    console.log('PLAIN TOKEN', plainToken);
     const hashedToken = await this.hashPassword(plainToken);
-    console.log('HASHED ', hashedToken);
     user.refeshToken = hashedToken;
     await user.save();
     return user;
