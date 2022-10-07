@@ -2,7 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { UsersService } from 'src/modules/user/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { AuthUserDTO, UpdateEmailDTO } from './auth.dto';
+import { AuthUserDTO } from './auth.dto';
 import { CreateUserDTO } from '../user/user.dto';
 import { User } from '../user/user.model';
 import { PostgresErrorCode } from 'src/exceptions/db-exceptions';
@@ -120,37 +120,19 @@ export class AuthService {
     return true;
   }
 
-  private async hashSecret(password) {
+  public async hashSecret(password) {
     const hash = await bcrypt.hash(password, 10);
     return hash;
   }
 
-  private async verifySecret({ hashed, plain }) {
+  public async verifySecret({ hashed, plain }) {
     const isPasswordMatching = await bcrypt.compare(plain, hashed);
     if (!isPasswordMatching) {
       throw new InvalidCredentials();
     }
   }
 
-  async updateEmail(userId: any, body: UpdateEmailDTO): Promise<any> {
-    const user = await this.usersService.findUserById(userId);
-    await this.verifySecret({
-      hashed: user.password,
-      plain: body.password.toString(),
-    });
-    const newTokens = await this.getTokens(user.id, user.email);
-
-    user.email = body.email;
-    user.refeshToken = newTokens.refreshToken;
-
-    await user.save();
-    return {
-      user,
-      tokens: newTokens,
-    };
-  }
-
-  private async getTokens(userId: string, email: string) {
+  public async getTokens(userId: string, email: string) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
