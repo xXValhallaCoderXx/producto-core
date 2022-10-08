@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
 import { User } from './user.model';
 import { CreateUserDTO, UpdatePasswordDTO } from './user.dto';
 import {
@@ -27,7 +28,9 @@ export class UsersService {
   findUserByEmail(email: string): Promise<User> {
     const user = this.userModel.findOne({
       where: {
-        email: email.toLowerCase(),
+        email: {
+          [Op.iLike]: email,
+        },
       },
     });
 
@@ -40,7 +43,7 @@ export class UsersService {
       where: {
         id,
       },
-      attributes: ['id', 'email', 'prefs', "password"],
+      attributes: ['id', 'email', 'prefs', 'password'],
     });
 
     if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
