@@ -19,6 +19,15 @@ export class AuthUserDTO {
 
 export class VerifyEmailParams {
   @IsString()
+  @IsEmail({}, { message: 'Invalid email address' })
+  email: string;
+}
+
+export class UpdateEmailDTO {
+  @IsNotEmpty()
+  password: string;
+
+  @IsNotEmpty()
   @IsEmail()
   email: string;
 }

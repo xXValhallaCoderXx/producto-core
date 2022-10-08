@@ -1,6 +1,12 @@
-import { Column, Model, Table, DataType, HasMany } from 'sequelize-typescript';
+import {
+  Column,
+  Model,
+  Table,
+  DataType,
+  HasMany,
+  Default,
+} from 'sequelize-typescript';
 import { Task } from '../task/task.model';
-// import { Exclude } from 'class-transformer';
 
 @Table
 export class User extends Model<User> {
@@ -15,8 +21,17 @@ export class User extends Model<User> {
     type: DataType.STRING,
     allowNull: false,
   })
-  // @Exclude()
   password: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  refeshToken: string;
+
+  @Default({ autoMove: false })
+  @Column(DataType.JSONB)
+  prefs!: object;
 
   @HasMany(() => Task)
   tasks: Task[];

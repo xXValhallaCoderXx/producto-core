@@ -5,7 +5,7 @@ import { TaskModule } from './modules/task/tasks.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule } from '@nestjs/config';
-
+import { UserProfileModule } from './modules/user-profile';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -19,9 +19,9 @@ import { ConfigModule } from '@nestjs/config';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      sync: {
-        force: true,
-      },
+      // sync: {
+      //   force: true,
+      // },
       synchronize: true,
       autoLoadModels: true,
       dialectOptions: {
@@ -35,6 +35,7 @@ import { ConfigModule } from '@nestjs/config';
     AuthModule,
     UsersModule,
     TaskModule,
+    UserProfileModule,
   ],
 })
 export class AppModule {}

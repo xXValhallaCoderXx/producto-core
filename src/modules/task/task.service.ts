@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel, SequelizeModule } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { Task } from './task.model';
@@ -8,6 +13,7 @@ import {
   UpdateTaskDTO,
   UpdateTaskParams,
   MoveIncompleteDTO,
+  MoveTasksDTO,
 } from './task.dto';
 import { UsersService } from 'src/modules/user/users.service';
 import moment = require('moment');
@@ -67,8 +73,26 @@ export class TaskService {
         ),
       ),
     ];
-
     return incompleteTasksOn;
+  }
+
+  async findAllIncompleteDetailTasks(req: any): Promise<any[]> {
+    const incompleteDates = await this.taskModel.findAll({
+      where: {
+        userId: req.user.id,
+        completed: false,
+      },
+      order: [['deadline', 'ASC']],
+      attributes: [
+        'title',
+        'completed',
+        'createdAt',
+        'id',
+        'focus',
+        'deadline',
+      ],
+    });
+    return incompleteDates;
   }
 
   async remove(id: string): Promise<void> {
@@ -92,8 +116,7 @@ export class TaskService {
     if (!user) {
       return null;
     }
-    console.log('WHAT IS THAT: ', data);
-    console.log('DEADLINE: ', data.deadline);
+
     return await this.taskModel.create<Task>({
       ...data,
       completed: false,
@@ -103,16 +126,35 @@ export class TaskService {
   }
 
   moveIncompleteTasks = async (body: MoveIncompleteDTO, req: any) => {
-    const TODAY_START = moment(body.date).format('YYYY-MM-DD 00:00');
-    const NOW = moment(body.date).format('YYYY-MM-DD 23:59');
+    const TODAY_START = moment(body.from).format('YYYY-MM-DD 00:00');
+    const NOW = moment(body.from).format('YYYY-MM-DD 23:59');
     await this.taskModel.update(
-      { deadline: moment(new Date()).format('YYYY-MM-DD') },
+      { deadline: body.to },
       {
         where: {
           userId: req.user.id,
           deadline: {
             [Op.between]: [TODAY_START, NOW],
           },
+          completed: false,
+        },
+      },
+    );
+
+    return {
+      type: 'success',
+      error: null,
+      data: {},
+    };
+  };
+
+  moveIncompleteTasks2 = async (body: MoveTasksDTO, req: any) => {
+    const response = await this.taskModel.update(
+      { deadline: body.to },
+      {
+        where: {
+          userId: req.user.id,
+          id: body.tasks,
           completed: false,
         },
       },
@@ -134,6 +176,23 @@ export class TaskService {
       { ...data },
       { where: { id: param.id, userId: req.user.id } },
     );
+    if (rowsUpdated === 1) {
+      return {
+        type: 'success',
+        error: null,
+        data: {},
+      };
+    } else {
+      throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
+    }
+  }
+
+  async deleteTask(req: any, param: UpdateTaskParams): Promise<any> {
+    const rowsUpdated = await this.taskModel.destroy({
+      where: {
+        id: param.id,
+      },
+    });
     if (rowsUpdated === 1) {
       return {
         type: 'success',

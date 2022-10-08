@@ -6,9 +6,12 @@ import {
   Body,
   Param,
   Patch,
+  Delete,
   Req,
   UseGuards,
   Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
 import { TaskService } from './task.service';
@@ -19,16 +22,25 @@ import {
   FindOneParams,
   MoveIncompleteDTO,
   FetchTasksParams,
+  MoveTasksDTO,
 } from './task.dto';
 
 @Controller('task')
 export class TaskController {
   constructor(private taskService: TaskService) {}
 
+  // List all user tasks
   @UseGuards(JwtAuthGuard)
   @Get('')
   async fetchAllUserTasks(@Request() req, @Query() query: FetchTasksParams) {
     return this.taskService.findAll(req, query);
+  }
+
+  // Create a task
+  @UseGuards(JwtAuthGuard)
+  @Post('')
+  async createTask(@Body() body: CreateTaskDTO, @Request() req) {
+    return this.taskService.create(body, req);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -38,11 +50,26 @@ export class TaskController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('')
-  async createTask(@Body() body: CreateTaskDTO, @Request() req) {
-    return this.taskService.create(body, req);
+  @Get('incomplete-detail')
+  async fetchAllUserIncompleteDetailTasks(@Request() req) {
+    return this.taskService.findAllIncompleteDetailTasks(req);
   }
 
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @UseGuards(JwtAuthGuard)
+  @Post('move-incomplete')
+  async moveIncompleteTasks(@Body() body: MoveIncompleteDTO, @Req() req) {
+    return this.taskService.moveIncompleteTasks(body, req);
+  }
+
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @UseGuards(JwtAuthGuard)
+  @Post('move-specific')
+  async moveIncompleteTasksArray(@Body() body: MoveTasksDTO, @Req() req) {
+    return this.taskService.moveIncompleteTasks2(body, req);
+  }
+
+  // Update task by ID
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async updateTaskById(
@@ -54,14 +81,15 @@ export class TaskController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async deleteTaskById(@Req() req, @Param() param: UpdateTaskParams) {
+    return this.taskService.deleteTask(req, param);
+  }
+
+  // Find Task By ID
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findTaskById(@Param() { id }: FindOneParams) {
     return this.taskService.findOne(id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('/move-incomplete')
-  async moveIncompleteTasks(@Body() body: MoveIncompleteDTO, @Req() req) {
-    return this.taskService.moveIncompleteTasks(body, req);
   }
 }

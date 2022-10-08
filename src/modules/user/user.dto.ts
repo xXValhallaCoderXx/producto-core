@@ -1,4 +1,10 @@
-import { IsNotEmpty, isEmail } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsBoolean,
+  isEmail,
+  IsEmail,
+} from 'class-validator';
 
 export class CreateUserDTO {
   @IsNotEmpty()
@@ -6,4 +12,18 @@ export class CreateUserDTO {
 
   @IsNotEmpty()
   password: string;
+}
+
+export class UpdatePerfsDTO {
+  @IsOptional()
+  @IsBoolean()
+  autoMove: boolean;
+}
+
+export class UpdatePasswordDTO {
+  @IsNotEmpty()
+  oldPassword: string;
+
+  @IsNotEmpty()
+  newPassword: string;
 }
