@@ -1,5 +1,10 @@
 import * as bcrypt from 'bcrypt';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { User } from './user.model';
@@ -58,6 +63,24 @@ export class UsersService {
         autoMove: false,
       },
     });
+  }
+
+  async updateTimezone(userId: any, body: any): Promise<User> {
+    const user = await this.userModel.findOne({
+      where: {
+        id: userId,
+      },
+      attributes: ['id', 'email', 'prefs', 'timezone'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.timezone = body.timezone;
+    await user.save();
+
+    return user;
   }
 
   async updatePerfs(userId: any, body: any): Promise<User> {

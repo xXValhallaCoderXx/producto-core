@@ -29,6 +29,12 @@ export class User extends Model<User> {
   })
   refeshToken: string;
 
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  timezone: string;
+
   @Default({ autoMove: false })
   @Column(DataType.JSONB)
   prefs!: object;

@@ -4,6 +4,7 @@ import {
   MinLength,
   MaxLength,
   IsString,
+  IsOptional,
 } from 'class-validator';
 
 export class AuthUserDTO {
@@ -15,6 +16,10 @@ export class AuthUserDTO {
   @MinLength(6)
   @MaxLength(15)
   password: string;
+
+  @IsOptional()
+  @IsString()
+  timezone: string;
 }
 
 export class VerifyEmailParams {
