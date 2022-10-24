@@ -96,6 +96,11 @@ export class UsersService {
     };
 
     await user.save();
+
+    if (body.autoMove === false) {
+      // Turn off automove for user tasks
+      console.log('TIME TO TURN OFF AUTOMOVE ON TASKS');
+    }
     return user;
   }
 
