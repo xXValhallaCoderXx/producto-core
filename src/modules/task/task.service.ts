@@ -297,7 +297,6 @@ export class TaskService {
       },
     );
     if (updatedTasks.length > 0) {
-      console.log('UPDATED TASKS: ', updatedTasks);
       return true;
     } else {
       return false;
