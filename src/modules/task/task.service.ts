@@ -1,13 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { InjectModel, SequelizeModule } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { InjectModel } from '@nestjs/sequelize';
+import Sequelize, { Op } from 'sequelize';
 import { Task } from './task.model';
+import * as moment from 'moment-timezone';
+
 import {
   CreateTaskDTO,
   UpdateTaskDTO,
@@ -16,10 +14,12 @@ import {
   MoveTasksDTO,
 } from './task.dto';
 import { UsersService } from 'src/modules/user/users.service';
-import moment = require('moment');
+import { User } from '../user/user.model';
 
 @Injectable()
 export class TaskService {
+  private readonly logger = new Logger(TaskService.name);
+
   constructor(
     @InjectModel(Task)
     private taskModel: typeof Task,
@@ -117,11 +117,15 @@ export class TaskService {
       return null;
     }
 
+    // @ts-ignore
+    const autoMove = user.prefs?.autoMove ?? false;
+
     return await this.taskModel.create<Task>({
       ...data,
       completed: false,
       userId: req.user.id,
       deadline: data.deadline,
+      autoMove,
     });
   }
 
@@ -149,8 +153,8 @@ export class TaskService {
   };
 
   moveIncompleteTasks2 = async (body: MoveTasksDTO, req: any) => {
-    const response = await this.taskModel.update(
-      { deadline: body.to },
+    await this.taskModel.update(
+      { deadline: body.to, autoMove: true },
       {
         where: {
           userId: req.user.id,
@@ -201,6 +205,101 @@ export class TaskService {
       };
     } else {
       throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Cron(CronExpression.EVERY_10_MINUTES)
+  async autoMoveTasks() {
+    const uniqueTimezones = await this.usersService.findAll({
+      where: {
+        timezone: {
+          [Op.ne]: null,
+        },
+      },
+      attributes: [
+        [Sequelize.fn('DISTINCT', Sequelize.col('timezone')), 'timezone'],
+      ],
+    });
+    const timezones = uniqueTimezones.map((user) => user.timezone);
+    if (timezones.length > 0) {
+      // timezones.forEach((timezone) => {
+      //   const tasks = await this.taskModel.findAll({
+      //     include: [{ model: User }],
+      //   });
+      //   // const now = moment().utc();
+      //   // console.log(now.tz(timezone).format('HH:mm:ss'));
+      //   // console.log(now.tz(timezone).format('mm'));
+
+      //   // const roundUp = now.startOf('hour').format('HH');
+      //   // console.log('ROUND UP: ', roundUp);
+
+      //   const now = moment();
+      // });
+
+      for await (const timezone of timezones) {
+        const timeNow = moment().tz(timezone);
+        if (timeNow) {
+          console.log('Current Timezone: ', timezone);
+          console.log('Timenow: ', timeNow);
+
+          const tasks = await this.taskModel.findAll({
+            where: {
+              deadline: {
+                [Op.lte]: timeNow,
+              },
+              autoMove: true,
+            },
+            include: [
+              {
+                model: User,
+                where: {
+                  timezone,
+                  prefs: {
+                    autoMove: true,
+                  },
+                },
+              },
+            ],
+          });
+
+          const taskIds = tasks.map((task) => task.id);
+          console.log('TASK IDS: ', taskIds);
+          if (taskIds.length > 0) {
+            const results = await this.taskModel.update(
+              {
+                deadline: timeNow,
+              },
+              {
+                where: {
+                  id: taskIds,
+                },
+              },
+            );
+            console.log('UPDATED ITEMS: ', results);
+          }
+        }
+      }
+    } else {
+      this.logger.debug('No timezones found');
+    }
+  }
+
+  async toggleAllTasksAutomove(userId: any, autoMove: boolean): Promise<any> {
+    const updatedTasks = await this.taskModel.update(
+      {
+        autoMove: false,
+      },
+      {
+        where: {
+          userId,
+          autoMove: true,
+        },
+      },
+    );
+    if (updatedTasks.length > 0) {
+      return true;
+    } else {
+      return false;
     }
   }
 }

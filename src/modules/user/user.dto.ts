@@ -4,6 +4,7 @@ import {
   IsBoolean,
   isEmail,
   IsEmail,
+  IsString,
 } from 'class-validator';
 
 export class CreateUserDTO {
@@ -18,6 +19,11 @@ export class UpdatePerfsDTO {
   @IsOptional()
   @IsBoolean()
   autoMove: boolean;
+}
+
+export class UpdateTimezoneDTO {
+  @IsString()
+  timezone: string;
 }
 
 export class UpdatePasswordDTO {

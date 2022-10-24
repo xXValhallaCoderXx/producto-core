@@ -1,5 +1,10 @@
 import * as bcrypt from 'bcrypt';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { User } from './user.model';
@@ -15,8 +20,8 @@ export class UsersService {
     private userModel: typeof User,
   ) {}
 
-  async findAll(): Promise<User[]> {
-    return this.userModel.findAll();
+  async findAll(opts: any): Promise<User[]> {
+    return this.userModel.findAll(opts);
   }
 
   async remove(id: string): Promise<void> {
@@ -60,6 +65,24 @@ export class UsersService {
     });
   }
 
+  async updateTimezone(userId: any, body: any): Promise<User> {
+    const user = await this.userModel.findOne({
+      where: {
+        id: userId,
+      },
+      attributes: ['id', 'email', 'prefs', 'timezone'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.timezone = body.timezone;
+    await user.save();
+
+    return user;
+  }
+
   async updatePerfs(userId: any, body: any): Promise<User> {
     const user = await this.userModel.findOne({
       where: {
@@ -73,6 +96,11 @@ export class UsersService {
     };
 
     await user.save();
+
+    if (body.autoMove === false) {
+      // Turn off automove for user tasks
+      console.log('TIME TO TURN OFF AUTOMOVE ON TASKS');
+    }
     return user;
   }
 

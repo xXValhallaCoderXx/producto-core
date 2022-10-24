@@ -10,7 +10,11 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
-import { UpdatePerfsDTO, UpdatePasswordDTO } from './user.dto';
+import {
+  UpdatePerfsDTO,
+  UpdatePasswordDTO,
+  UpdateTimezoneDTO,
+} from './user.dto';
 
 @Controller('user')
 export class UserController {
@@ -29,10 +33,17 @@ export class UserController {
     return this.userService.updatePassword(req.user.id, body);
   }
 
+  // @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  // @UseGuards(JwtAuthGuard)
+  // @Patch('update-prefs')
+  // async updatePrefs(@Request() req, @Body() body: UpdatePerfsDTO) {
+  //   return this.userService.updatePerfs(req.user.id, body);
+  // }
+
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @UseGuards(JwtAuthGuard)
-  @Patch('update-prefs')
-  async updatePrefs(@Request() req, @Body() body: UpdatePerfsDTO) {
-    return this.userService.updatePerfs(req.user.id, body);
+  @Patch('update-timezone')
+  async updateTimezone(@Request() req, @Body() body: UpdateTimezoneDTO) {
+    return this.userService.updateTimezone(req.user.id, body);
   }
 }
