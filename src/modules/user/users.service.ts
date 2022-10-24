@@ -20,8 +20,8 @@ export class UsersService {
     private userModel: typeof User,
   ) {}
 
-  async findAll(): Promise<User[]> {
-    return this.userModel.findAll();
+  async findAll(opts: any): Promise<User[]> {
+    return this.userModel.findAll(opts);
   }
 
   async remove(id: string): Promise<void> {
