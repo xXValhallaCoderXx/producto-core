@@ -7,9 +7,9 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { UserProfileService } from './user-profile.service';
+import { UserProfileService } from './user-auth.service';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
-import { UpdateEmailDTO } from './user-profile.dto';
+import { UpdateEmailDTO } from './user-auth.dto';
 // import { ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
 @Controller('user')
 export class UserProfileController {

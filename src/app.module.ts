@@ -5,7 +5,8 @@ import { TaskModule } from './modules/task/tasks.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule } from '@nestjs/config';
-import { UserProfileModule } from './modules/user-profile';
+import { UserProfileModule } from './modules/user-auth/user-auth.module';
+import { UserTaskModule } from './modules/user-task/user-task.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -36,6 +37,7 @@ import { UserProfileModule } from './modules/user-profile';
     UsersModule,
     TaskModule,
     UserProfileModule,
+    UserTaskModule,
   ],
 })
 export class AppModule {}

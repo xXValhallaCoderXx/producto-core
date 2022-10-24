@@ -283,4 +283,24 @@ export class TaskService {
       this.logger.debug('No timezones found');
     }
   }
+
+  async toggleAllTasksAutomove(userId: any, autoMove: boolean): Promise<any> {
+    const updatedTasks = await this.taskModel.update(
+      {
+        autoMove: false,
+      },
+      {
+        where: {
+          userId,
+          autoMove: true,
+        },
+      },
+    );
+    if (updatedTasks.length > 0) {
+      console.log('UPDATED TASKS: ', updatedTasks);
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

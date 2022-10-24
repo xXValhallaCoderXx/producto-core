@@ -9,6 +9,6 @@ import { UsersModule } from 'src/modules/user/users.module';
   imports: [SequelizeModule.forFeature([Task]), UsersModule],
   controllers: [TaskController],
   providers: [TaskService],
-  // exports: [AuthService],
+  exports: [TaskService],
 })
 export class TaskModule {}

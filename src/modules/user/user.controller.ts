@@ -33,12 +33,12 @@ export class UserController {
     return this.userService.updatePassword(req.user.id, body);
   }
 
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  @UseGuards(JwtAuthGuard)
-  @Patch('update-prefs')
-  async updatePrefs(@Request() req, @Body() body: UpdatePerfsDTO) {
-    return this.userService.updatePerfs(req.user.id, body);
-  }
+  // @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  // @UseGuards(JwtAuthGuard)
+  // @Patch('update-prefs')
+  // async updatePrefs(@Request() req, @Body() body: UpdatePerfsDTO) {
+  //   return this.userService.updatePerfs(req.user.id, body);
+  // }
 
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @UseGuards(JwtAuthGuard)
