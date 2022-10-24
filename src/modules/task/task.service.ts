@@ -208,7 +208,7 @@ export class TaskService {
     }
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_10_MINUTES)
   async autoMoveTasks() {
     const uniqueTimezones = await this.usersService.findAll({
       where: {
