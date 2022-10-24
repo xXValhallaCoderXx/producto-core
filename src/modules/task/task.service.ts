@@ -254,6 +254,9 @@ export class TaskService {
                 model: User,
                 where: {
                   timezone,
+                  prefs: {
+                    autoMove: true,
+                  },
                 },
               },
             ],
