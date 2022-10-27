@@ -22,12 +22,7 @@ export class UserTaskService {
 
     if (body.autoMove === false) {
       // Turn off automove for user tasks
-      console.log('TIME TO TURN OFF AUTOMOVE ON TASKS');
-      const result = await this.taskService.toggleAllTasksAutomove(
-        userId,
-        false,
-      );
-      console.log('RESULT: ', result);
+      await this.taskService.toggleAllTasksAutomove(userId, false);
     }
     return user;
   }

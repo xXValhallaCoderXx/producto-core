@@ -208,7 +208,7 @@ export class TaskService {
     }
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async autoMoveTasks() {
     const uniqueTimezones = await this.usersService.findAll({
       where: {
@@ -222,26 +222,16 @@ export class TaskService {
     });
     const timezones = uniqueTimezones.map((user) => user.timezone);
     if (timezones.length > 0) {
-      // timezones.forEach((timezone) => {
-      //   const tasks = await this.taskModel.findAll({
-      //     include: [{ model: User }],
-      //   });
-      //   // const now = moment().utc();
-      //   // console.log(now.tz(timezone).format('HH:mm:ss'));
-      //   // console.log(now.tz(timezone).format('mm'));
-
-      //   // const roundUp = now.startOf('hour').format('HH');
-      //   // console.log('ROUND UP: ', roundUp);
-
-      //   const now = moment();
-      // });
-
       for await (const timezone of timezones) {
         const timeNow = moment().tz(timezone);
-        if (timeNow) {
-          console.log('Current Timezone: ', timezone);
-          console.log('Timenow: ', timeNow);
+        const midnight = timeNow.clone().endOf('day');
+        const fiveMinBeforeMidnight = midnight.clone().subtract(5, 'minutes');
+        const fiveMinAfterMidnight = midnight.clone().add(5, 'minutes');
 
+        if (
+          timeNow &&
+          timeNow.isBetween(fiveMinBeforeMidnight, fiveMinAfterMidnight)
+        ) {
           const tasks = await this.taskModel.findAll({
             where: {
               deadline: {
@@ -263,11 +253,10 @@ export class TaskService {
           });
 
           const taskIds = tasks.map((task) => task.id);
-          console.log('TASK IDS: ', taskIds);
           if (taskIds.length > 0) {
-            const results = await this.taskModel.update(
+            await this.taskModel.update(
               {
-                deadline: timeNow,
+                deadline: fiveMinAfterMidnight,
               },
               {
                 where: {
@@ -275,7 +264,6 @@ export class TaskService {
                 },
               },
             );
-            console.log('UPDATED ITEMS: ', results);
           }
         }
       }
@@ -303,3 +291,17 @@ export class TaskService {
     }
   }
 }
+
+// timezones.forEach((timezone) => {
+//   const tasks = await this.taskModel.findAll({
+//     include: [{ model: User }],
+//   });
+//   // const now = moment().utc();
+//   // console.log(now.tz(timezone).format('HH:mm:ss'));
+//   // console.log(now.tz(timezone).format('mm'));
+
+//   // const roundUp = now.startOf('hour').format('HH');
+//   // console.log('ROUND UP: ', roundUp);
+
+//   const now = moment();
+// });
