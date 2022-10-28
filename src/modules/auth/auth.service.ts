@@ -1,15 +1,17 @@
 import * as bcrypt from 'bcrypt';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  BadRequestException,
+} from '@nestjs/common';
 import { UsersService } from 'src/modules/user/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { AuthUserDTO } from './auth.dto';
 import { CreateUserDTO } from '../user/user.dto';
 import { User } from '../user/user.model';
 import { PostgresErrorCode } from 'src/exceptions/db-exceptions';
-import {
-  InvalidCredentials,
-  RecordNotFound,
-} from 'src/exceptions/api-exceptions';
+import { InvalidCredentials } from 'src/exceptions/api-exceptions';
 
 import { ConfigService } from '@nestjs/config';
 
@@ -115,7 +117,7 @@ export class AuthService {
   async verifyEmail(email) {
     const user = await this.usersService.findUserByEmail(email);
     if (!user) {
-      throw new RecordNotFound('Email not found');
+      throw new BadRequestException("Couldn't find your account");
     }
     return true;
   }

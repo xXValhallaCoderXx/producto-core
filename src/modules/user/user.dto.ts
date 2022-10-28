@@ -27,9 +27,9 @@ export class UpdateTimezoneDTO {
 }
 
 export class UpdatePasswordDTO {
-  @IsNotEmpty()
-  oldPassword: string;
+  @IsNotEmpty({ message: 'Current password must not be empty' })
+  currentPassword: string;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'New password must not be empty' })
   newPassword: string;
 }

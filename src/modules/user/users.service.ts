@@ -126,7 +126,7 @@ export class UsersService {
       },
     });
 
-    await this.verifyPassword(body.oldPassword.toString(), user.password);
+    await this.verifyPassword(body.currentPassword.toString(), user.password);
     const hashedPassword = await this.hashPassword(body.newPassword.toString());
     user.password = hashedPassword;
     await user.save();
