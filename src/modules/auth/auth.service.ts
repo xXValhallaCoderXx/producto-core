@@ -129,6 +129,7 @@ export class AuthService {
 
   public async verifySecret({ hashed, plain }) {
     const isPasswordMatching = await bcrypt.compare(plain, hashed);
+
     if (!isPasswordMatching) {
       throw new InvalidCredentials();
     }

@@ -76,11 +76,18 @@ export class TaskService {
     return incompleteTasksOn;
   }
 
-  async findAllIncompleteDetailTasks(req: any): Promise<any[]> {
+  async findAllIncompleteDetailTasks(req: any, query: any): Promise<any[]> {
+    const TODAY_START = moment(query.date).format('YYYY-MM-DD 00:00');
+    const NOW = moment(query.date).format('YYYY-MM-DD 23:59');
     const incompleteDates = await this.taskModel.findAll({
       where: {
         userId: req.user.id,
         completed: false,
+        ...(query.date && {
+          deadline: {
+            [Op.between]: [TODAY_START, NOW],
+          },
+        }),
       },
       order: [['deadline', 'ASC']],
       attributes: [

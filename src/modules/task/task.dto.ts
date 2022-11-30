@@ -28,6 +28,12 @@ export class FetchTasksParams {
   date: string;
 }
 
+export class FetchIncompleteTaskParams {
+  @IsOptional()
+  @IsDateString()
+  date: string;
+}
+
 export class UpdateTaskDTO {
   @IsOptional()
   @IsString()

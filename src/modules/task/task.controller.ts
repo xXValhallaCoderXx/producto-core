@@ -23,6 +23,7 @@ import {
   MoveIncompleteDTO,
   FetchTasksParams,
   MoveTasksDTO,
+  FetchIncompleteTaskParams,
 } from './task.dto';
 
 @Controller('task')
@@ -51,8 +52,11 @@ export class TaskController {
 
   @UseGuards(JwtAuthGuard)
   @Get('incomplete-detail')
-  async fetchAllUserIncompleteDetailTasks(@Request() req) {
-    return this.taskService.findAllIncompleteDetailTasks(req);
+  async fetchAllUserIncompleteDetailTasks(
+    @Request() req,
+    @Query() query: FetchIncompleteTaskParams,
+  ) {
+    return this.taskService.findAllIncompleteDetailTasks(req, query);
   }
 
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
