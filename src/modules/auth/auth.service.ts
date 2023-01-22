@@ -116,6 +116,7 @@ export class AuthService {
 
   async verifyEmail(email) {
     const user = await this.usersService.findUserByEmail(email);
+    console.log('USER: ', user);
     if (!user) {
       throw new BadRequestException("Couldn't find your account");
     }

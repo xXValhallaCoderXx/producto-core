@@ -228,51 +228,86 @@ export class TaskService {
       ],
     });
     const timezones = uniqueTimezones.map((user) => user.timezone);
+    console.log('TIMEZONES: ', timezones);
     if (timezones.length > 0) {
       for await (const timezone of timezones) {
         const timeNow = moment().tz(timezone);
         const midnight = timeNow.clone().endOf('day');
         const fiveMinBeforeMidnight = midnight.clone().subtract(5, 'minutes');
         const fiveMinAfterMidnight = midnight.clone().add(5, 'minutes');
-
-        if (
-          timeNow &&
-          timeNow.isBetween(fiveMinBeforeMidnight, fiveMinAfterMidnight)
-        ) {
-          const tasks = await this.taskModel.findAll({
-            where: {
-              deadline: {
-                [Op.lte]: timeNow,
-              },
-              autoMove: true,
+        console.log('time now: ', timeNow);
+        console.log('midnight ', midnight);
+        const tasks = await this.taskModel.findAll({
+          where: {
+            deadline: {
+              [Op.lte]: timeNow,
             },
-            include: [
-              {
-                model: User,
-                where: {
-                  timezone,
-                  prefs: {
-                    autoMove: true,
-                  },
+            autoMove: true,
+          },
+          include: [
+            {
+              model: User,
+              where: {
+                timezone,
+                prefs: {
+                  autoMove: true,
                 },
               },
-            ],
-          });
-
-          const taskIds = tasks.map((task) => task.id);
-          if (taskIds.length > 0) {
-            await this.taskModel.update(
-              {
-                deadline: fiveMinAfterMidnight,
+            },
+          ],
+        });
+        console.log('TASKS: ', tasks);
+        const taskIds = tasks.map((task) => task.id);
+        if (taskIds.length > 0) {
+          await this.taskModel.update(
+            {
+              deadline: fiveMinAfterMidnight,
+            },
+            {
+              where: {
+                id: taskIds,
               },
-              {
-                where: {
-                  id: taskIds,
-                },
-              },
-            );
-          }
+            },
+          );
         }
+        // if (
+        //   timeNow &&
+        //   timeNow.isBetween(fiveMinBeforeMidnight, fiveMinAfterMidnight)
+        // ) {
+        //   const tasks = await this.taskModel.findAll({
+        //     where: {
+        //       deadline: {
+        //         [Op.lte]: timeNow,
+        //       },
+        //       autoMove: true,
+        //     },
+        //     include: [
+        //       {
+        //         model: User,
+        //         where: {
+        //           timezone,
+        //           prefs: {
+        //             autoMove: true,
+        //           },
+        //         },
+        //       },
+        //     ],
+        //   });
+        //   console.log('TASKS: ', tasks);
+        //   const taskIds = tasks.map((task) => task.id);
+        //   if (taskIds.length > 0) {
+        //     await this.taskModel.update(
+        //       {
+        //         deadline: fiveMinAfterMidnight,
+        //       },
+        //       {
+        //         where: {
+        //           id: taskIds,
+        //         },
+        //       },
+        //     );
+        //   }
+        // }
       }
     } else {
       this.logger.debug('No timezones found');
