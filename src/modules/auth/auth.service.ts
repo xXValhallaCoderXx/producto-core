@@ -38,7 +38,6 @@ export class AuthService {
 
   async login(user: User) {
     const { id, email } = user;
-
     const { accessToken, refreshToken } = await this.getTokens(id, email);
 
     if (!accessToken || !refreshToken) {
@@ -48,7 +47,7 @@ export class AuthService {
       userId: id,
       plainToken: refreshToken,
     });
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, email };
   }
 
   async logout(user) {
