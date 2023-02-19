@@ -133,33 +133,6 @@ export class UsersService {
     return user;
   }
 
-  // private async getTokens(userId: string, email: string) {
-  //   const [accessToken, refreshToken] = await Promise.all([
-  //     this.jwtService.signAsync(
-  //       {
-  //         sub: userId,
-  //         email,
-  //       },
-  //       {
-  //         secret: this.configService.get<string>('JWT_SECRET'),
-  //         expiresIn: this.configService.get<string>('JWT_SECRET_EXPIRY'),
-  //       },
-  //     ),
-  //     this.jwtService.signAsync(
-  //       {
-  //         sub: userId,
-  //         email,
-  //       },
-  //       {
-  //         secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
-  //         expiresIn: this.configService.get<string>('JWT_REFRESH_SECRET'),
-  //       },
-  //     ),
-  //   ]);
-
-  //   return { accessToken, refreshToken };
-  // }
-
   async updateRefreshToken({ userId, plainToken }): Promise<User> {
     const user = await this.userModel.findOne({
       where: {
