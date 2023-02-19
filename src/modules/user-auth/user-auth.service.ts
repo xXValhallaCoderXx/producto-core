@@ -12,23 +12,16 @@ export class UserProfileService {
   ) {}
 
   public async updateUserEmail(userId: any, body: UpdateEmailDTO) {
-    console.log('BODY', body);
-    console.log('USER ID: ', userId);
     const user = await this.userService.findUserById(userId);
-    console.log('HASHED: ', user.id);
     await this.authService.verifySecret({
       hashed: user.password,
       plain: body.password.toString(),
     });
 
-    console.log('WHAT: ');
-    const newTokens = await this.authService.getTokens(user.id, user.email);
+    const newTokens = await this.authService.getTokens(user.id, body.email);
     const hashedRefresh = await this.authService.hashSecret(
       newTokens.refreshToken,
     );
-    console.log('WOWOWOO');
-    // user.email = body.email;
-    // user.refeshToken = hashedRefresh;
 
     await User.update(
       { email: body.email, refeshToken: hashedRefresh },
@@ -39,13 +32,7 @@ export class UserProfileService {
       },
     );
 
-    // await user.save();
     return {
-      // user: {
-      //   id: user.id,
-      //   email: body.email,
-      //   prefs: user.prefs,
-      // },
       tokens: newTokens,
     };
   }
