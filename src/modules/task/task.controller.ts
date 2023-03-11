@@ -70,7 +70,7 @@ export class TaskController {
   @UseGuards(JwtAuthGuard)
   @Post('move-specific')
   async moveIncompleteTasksArray(@Body() body: MoveTasksDTO, @Req() req) {
-    return this.taskService.moveIncompleteTasks2(body, req);
+    return this.taskService.moveSpecificTasksToToday(body, req);
   }
 
   // Update task by ID

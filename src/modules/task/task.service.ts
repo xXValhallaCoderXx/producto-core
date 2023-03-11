@@ -26,18 +26,30 @@ export class TaskService {
     private usersService: UsersService,
   ) {}
 
-  async findAll(req: any, query: any): Promise<Task[]> {
-    const TODAY_START = moment(query.date).format('YYYY-MM-DD 00:00');
-    const NOW = moment(query.date).format('YYYY-MM-DD 23:59');
-    console.log('QUERY DATE: ', query);
+  async create(data: CreateTaskDTO, req: any): Promise<any> {
+    const user = await this.usersService.findUserByEmail(req.user.email);
+    if (!user) {
+      return null;
+    }
+    // @ts-ignore
+    const autoMove = user.prefs?.autoMove ?? false;
 
-    return this.taskModel.findAll({
+    return await this.taskModel.create<Task>({
+      ...data,
+      completed: false,
+      userId: req.user.id,
+      deadline: moment(data.deadline).format('YYYY-MM-DD'),
+      autoMove,
+    });
+  }
+
+  async findAll(req: any, query: any): Promise<Task[]> {
+    const DEADLINE_DATE = moment(query.date).format('YYYY-MM-DD');
+    const tasks = await this.taskModel.findAll({
       where: {
         userId: req.user.id,
         ...(query.date && {
-          deadline: {
-            [Op.between]: [TODAY_START, NOW],
-          },
+          deadline: DEADLINE_DATE,
         }),
       },
       order: [['createdAt', 'ASC']],
@@ -50,7 +62,29 @@ export class TaskService {
         'deadline',
       ],
     });
+    return tasks;
   }
+
+  moveSpecificTasksToToday = async (body: MoveTasksDTO, req: any) => {
+    await this.taskModel.update(
+      { deadline: moment(body.to).format('YYYY-MM-DD') },
+      {
+        where: {
+          userId: req.user.id,
+          id: body.tasks,
+          completed: false,
+        },
+      },
+    );
+
+    return {
+      type: 'success',
+      error: null,
+      data: {},
+    };
+  };
+
+  // NOT YET CHANGED
 
   async findAllIncompleteTasks(req: any): Promise<string[]> {
     const incompleteDates = await this.taskModel.findAll({
@@ -120,24 +154,6 @@ export class TaskService {
     return task;
   }
 
-  async create(data: CreateTaskDTO, req: any): Promise<any> {
-    const user = await this.usersService.findUserByEmail(req.user.email);
-    if (!user) {
-      return null;
-    }
-
-    // @ts-ignore
-    const autoMove = user.prefs?.autoMove ?? false;
-
-    return await this.taskModel.create<Task>({
-      ...data,
-      completed: false,
-      userId: req.user.id,
-      deadline: moment(data.deadline).format('YYYY-MM-DD 23:59'),
-      autoMove,
-    });
-  }
-
   moveIncompleteTasks = async (body: MoveIncompleteDTO, req: any) => {
     const TODAY_START = moment(body.from).format('YYYY-MM-DD 00:00');
     const NOW = moment(body.from).format('YYYY-MM-DD 23:59');
@@ -161,30 +177,12 @@ export class TaskService {
     };
   };
 
-  moveIncompleteTasks2 = async (body: MoveTasksDTO, req: any) => {
-    await this.taskModel.update(
-      { deadline: moment(body.to).format('YYYY-MM-DD 23:59'), autoMove: true },
-      {
-        where: {
-          userId: req.user.id,
-          id: body.tasks,
-          completed: false,
-        },
-      },
-    );
-
-    return {
-      type: 'success',
-      error: null,
-      data: {},
-    };
-  };
-
   async updateTask(
     data: UpdateTaskDTO,
     req: any,
     param: UpdateTaskParams,
   ): Promise<any> {
+    console.log('DATA: ', data);
     const [rowsUpdated] = await this.taskModel.update<Task>(
       { ...data },
       { where: { id: param.id, userId: req.user.id } },
