@@ -25,7 +25,10 @@ export class UpdateTaskParams {
 
 export class FetchTasksParams {
   @IsDateString()
-  date: string;
+  start: string;
+
+  @IsDateString()
+  end: string;
 }
 
 export class FetchIncompleteTaskParams {

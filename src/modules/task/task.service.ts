@@ -26,31 +26,15 @@ export class TaskService {
     private usersService: UsersService,
   ) {}
 
-  async create(data: CreateTaskDTO, req: any): Promise<any> {
-    const user = await this.usersService.findUserByEmail(req.user.email);
-    if (!user) {
-      return null;
-    }
-    // @ts-ignore
-    const autoMove = user.prefs?.autoMove ?? false;
-
-    return await this.taskModel.create<Task>({
-      ...data,
-      completed: false,
-      userId: req.user.id,
-      deadline: moment(data.deadline).format('YYYY-MM-DD'),
-      autoMove,
-    });
-  }
-
   async findAll(req: any, query: any): Promise<Task[]> {
-    const DEADLINE_DATE = moment(query.date).format('YYYY-MM-DD');
+    console.log('QUERY: ', new Date(query.end));
     const tasks = await this.taskModel.findAll({
       where: {
         userId: req.user.id,
-        ...(query.date && {
-          deadline: DEADLINE_DATE,
-        }),
+        ...(query.start &&
+          query.end && {
+            deadline: { [Op.between]: [query.start, query.end] },
+          }),
       },
       order: [['createdAt', 'ASC']],
       attributes: [
@@ -63,6 +47,23 @@ export class TaskService {
       ],
     });
     return tasks;
+  }
+
+  async create(data: CreateTaskDTO, req: any): Promise<any> {
+    const user = await this.usersService.findUserByEmail(req.user.email);
+    if (!user) {
+      return null;
+    }
+    // @ts-ignore
+    const autoMove = user.prefs?.autoMove ?? false;
+
+    return await this.taskModel.create<Task>({
+      ...data,
+      completed: false,
+      userId: req.user.id,
+      deadline: data.deadline,
+      autoMove,
+    });
   }
 
   moveSpecificTasksToToday = async (body: MoveTasksDTO, req: any) => {
@@ -154,29 +155,6 @@ export class TaskService {
     return task;
   }
 
-  moveIncompleteTasks = async (body: MoveIncompleteDTO, req: any) => {
-    const TODAY_START = moment(body.from).format('YYYY-MM-DD 00:00');
-    const NOW = moment(body.from).format('YYYY-MM-DD 23:59');
-    await this.taskModel.update(
-      { deadline: body.to },
-      {
-        where: {
-          userId: req.user.id,
-          deadline: {
-            [Op.between]: [TODAY_START, NOW],
-          },
-          completed: false,
-        },
-      },
-    );
-
-    return {
-      type: 'success',
-      error: null,
-      data: {},
-    };
-  };
-
   async updateTask(
     data: UpdateTaskDTO,
     req: any,
@@ -187,6 +165,7 @@ export class TaskService {
       { ...data },
       { where: { id: param.id, userId: req.user.id } },
     );
+    console.log('ROWS: ', rowsUpdated);
     if (rowsUpdated === 1) {
       return {
         type: 'success',
@@ -215,7 +194,7 @@ export class TaskService {
     }
   }
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_10_SECONDS)
   async autoMoveTasks() {
     const uniqueTimezones = await this.usersService.findAll({
       where: {
@@ -233,17 +212,17 @@ export class TaskService {
     if (timezones.length > 0) {
       for await (const timezone of timezones) {
         const timeNow = moment().tz(timezone);
-        const startOfDay = timeNow.clone().startOf('day');
-        // const endOfDay = timeNow.clone().endOf('day');
-        // const midnight = timeNow.clone().endOf('day').add('1', 'second');
-        // const nextDeadline = timeNow.clone().add(1, 'day').endOf('day');
-        // const fiveMinBeforeMidnight = midnight.clone().subtract(5, 'minutes');
-        // const fiveMinAfterMidnight = midnight.clone().add(5, 'minutes');
+
+        const startBase = timeNow.clone();
+        const endBase = timeNow.clone();
+
+        const endOfCurrentDay = startBase.endOf('day').utc(false);
+        const startOfNextDay = endBase.startOf('day').utc(false).add(1, 'day');
 
         const tasks = await this.taskModel.findAll({
           where: {
             deadline: {
-              [Op.lte]: startOfDay,
+              [Op.lte]: endOfCurrentDay,
             },
             autoMove: true,
           },
@@ -264,9 +243,7 @@ export class TaskService {
         if (taskIds.length > 0) {
           await this.taskModel.update(
             {
-              deadline: moment(timeNow.format('YYYY-MM-DD')).format(
-                'YYYY-MM-DD 23:59',
-              ),
+              deadline: startOfNextDay,
             },
             {
               where: {
@@ -275,44 +252,6 @@ export class TaskService {
             },
           );
         }
-        // if (
-        //   timeNow &&
-        //   timeNow.isBetween(fiveMinBeforeMidnight, fiveMinAfterMidnight)
-        // ) {
-        //   const tasks = await this.taskModel.findAll({
-        //     where: {
-        //       deadline: {
-        //         [Op.lte]: timeNow,
-        //       },
-        //       autoMove: true,
-        //     },
-        //     include: [
-        //       {
-        //         model: User,
-        //         where: {
-        //           timezone,
-        //           prefs: {
-        //             autoMove: true,
-        //           },
-        //         },
-        //       },
-        //     ],
-        //   });
-
-        //   const taskIds = tasks.map((task) => task.id);
-        //   if (taskIds.length > 0) {
-        //     await this.taskModel.update(
-        //       {
-        //         deadline: fiveMinAfterMidnight,
-        //       },
-        //       {
-        //         where: {
-        //           id: taskIds,
-        //         },
-        //       },
-        //     );
-        //   }
-        // }
       }
     } else {
       this.logger.debug('No timezones found');

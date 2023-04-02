@@ -20,7 +20,6 @@ import {
   UpdateTaskDTO,
   CreateTaskDTO,
   FindOneParams,
-  MoveIncompleteDTO,
   FetchTasksParams,
   MoveTasksDTO,
   FetchIncompleteTaskParams,
@@ -57,13 +56,6 @@ export class TaskController {
     @Query() query: FetchIncompleteTaskParams,
   ) {
     return this.taskService.findAllIncompleteDetailTasks(req, query);
-  }
-
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  @UseGuards(JwtAuthGuard)
-  @Post('move-incomplete')
-  async moveIncompleteTasks(@Body() body: MoveIncompleteDTO, @Req() req) {
-    return this.taskService.moveIncompleteTasks(body, req);
   }
 
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
