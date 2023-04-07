@@ -6,6 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { UsersService } from 'src/modules/user/users.service';
+import { TaskService } from '../task/task.service';
 import { JwtService } from '@nestjs/jwt';
 import {
   AuthUserDTO,
@@ -25,6 +26,7 @@ import * as moment from 'moment-timezone';
 export class AuthService {
   constructor(
     private usersService: UsersService,
+    private taskService: TaskService,
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
@@ -94,6 +96,8 @@ export class AuthService {
         userId: newUser.id,
         plainToken: newTokens.refreshToken,
       });
+
+      await this.taskService.createNewUserTasks(newUser.email);
 
       return {
         type: 'success',
@@ -212,7 +216,6 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('Incorrect credentials');
     }
-    console.log('USER: ', user);
     if (user.otpCode === data.code) {
       // Check credentials
       const timeNow = moment().utc(false);

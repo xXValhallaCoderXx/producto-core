@@ -65,6 +65,47 @@ export class TaskService {
     });
   }
 
+  async createNewUserTasks(email: string): Promise<any> {
+    const user = await this.usersService.findUserByEmail(email);
+    if (!user) {
+      return null;
+    }
+
+    const timeNow = moment().tz(user.timezone);
+
+    await this.taskModel.bulkCreate<Task>([
+      {
+        title: 'Long press task to enter edit mode',
+        completed: false,
+        userId: user.id,
+        deadline: timeNow.toISOString(),
+        autoMove: false,
+      },
+      {
+        title: 'You can delete tasks in edit mode',
+        completed: false,
+        userId: user.id,
+        deadline: timeNow.toISOString(),
+        autoMove: false,
+      },
+      {
+        title: 'You can rearrange tasks in edit mode',
+        completed: false,
+        userId: user.id,
+        deadline: timeNow.toISOString(),
+        autoMove: false,
+      },
+    ]);
+
+    // return await this.taskModel.create<Task>({
+    //   ...data,
+    // completed: false,
+    // userId: req.user.id,
+    // deadline: data.deadline,
+    // autoMove,
+    // });
+  }
+
   moveSpecificTasksToToday = async (body: MoveTasksDTO, req: any) => {
     await this.taskModel.update(
       { deadline: moment(body.to).format('YYYY-MM-DD') },

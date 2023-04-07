@@ -9,10 +9,12 @@ import { JwtRefreshStrategy } from './jwt-refresh.strategy';
 import { AuthController } from './auth.controller';
 import { ConfigService } from '@nestjs/config';
 import { ConfigModule } from '@nestjs/config';
+import { TaskModule } from '../task/tasks.module';
 
 @Module({
   imports: [
     UsersModule,
+    TaskModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
