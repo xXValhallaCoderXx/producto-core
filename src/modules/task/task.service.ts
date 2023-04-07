@@ -10,7 +10,6 @@ import {
   CreateTaskDTO,
   UpdateTaskDTO,
   UpdateTaskParams,
-  MoveIncompleteDTO,
   MoveTasksDTO,
 } from './task.dto';
 import { UsersService } from 'src/modules/user/users.service';
@@ -64,6 +63,39 @@ export class TaskService {
       deadline: data.deadline,
       autoMove,
     });
+  }
+
+  async createNewUserTasks(email: string): Promise<any> {
+    const user = await this.usersService.findUserByEmail(email);
+    if (!user) {
+      return null;
+    }
+
+    const timeNow = moment().tz(user.timezone);
+
+    await this.taskModel.bulkCreate<Task>([
+      {
+        title: 'Long press task to enter edit mode',
+        completed: false,
+        userId: user.id,
+        deadline: timeNow.toISOString(),
+        autoMove: false,
+      },
+      {
+        title: 'You can delete tasks in edit mode',
+        completed: false,
+        userId: user.id,
+        deadline: timeNow.toISOString(),
+        autoMove: false,
+      },
+      {
+        title: 'You can rearrange tasks in edit mode',
+        completed: false,
+        userId: user.id,
+        deadline: timeNow.toISOString(),
+        autoMove: false,
+      },
+    ]);
   }
 
   moveSpecificTasksToToday = async (body: MoveTasksDTO, req: any) => {
@@ -160,12 +192,11 @@ export class TaskService {
     req: any,
     param: UpdateTaskParams,
   ): Promise<any> {
-    console.log('DATA: ', data);
     const [rowsUpdated] = await this.taskModel.update<Task>(
       { ...data },
       { where: { id: param.id, userId: req.user.id } },
     );
-    console.log('ROWS: ', rowsUpdated);
+
     if (rowsUpdated === 1) {
       return {
         type: 'success',

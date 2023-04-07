@@ -6,19 +6,28 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { UsersService } from 'src/modules/user/users.service';
+import { TaskService } from '../task/task.service';
 import { JwtService } from '@nestjs/jwt';
-import { AuthUserDTO } from './auth.dto';
+import {
+  AuthUserDTO,
+  OtpRequestDTO,
+  OtpVerifyDTO,
+  ForgotPasswordUpdate,
+} from './auth.dto';
 import { CreateUserDTO } from '../user/user.dto';
 import { User } from '../user/user.model';
 import { PostgresErrorCode } from 'src/exceptions/db-exceptions';
 import { InvalidCredentials } from 'src/exceptions/api-exceptions';
 
 import { ConfigService } from '@nestjs/config';
+import * as moment from 'moment-timezone';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
+    private taskService: TaskService,
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
@@ -88,6 +97,8 @@ export class AuthService {
         userId: newUser.id,
         plainToken: newTokens.refreshToken,
       });
+
+      await this.taskService.createNewUserTasks(newUser.email);
 
       return {
         type: 'success',
@@ -159,5 +170,82 @@ export class AuthService {
     ]);
 
     return { accessToken, refreshToken };
+  }
+
+  public async otpRequest(data: OtpRequestDTO) {
+    const otpCode = [...Array(6)].map((_) => (Math.random() * 10) | 0).join('');
+    const user = await this.usersService.createUserOTP({
+      email: data.email,
+      otpCode,
+    });
+
+    if (user) {
+      const client = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+          user: 'producto.alpha@gmail.com',
+          pass: this.configService.get<string>('GOOGLE_APP_PASSWORD'),
+        },
+      });
+      client.sendMail({
+        from: 'producto.alpha@gmail.com',
+        to: data.email,
+        subject: 'Producto OTP Code',
+        text: `Your OTP code is ${otpCode}`,
+      });
+    }
+
+    return true;
+  }
+
+  public async otpUpdatePassword(userCreds, data: ForgotPasswordUpdate) {
+    const user = await this.usersService.findUserById(userCreds.id);
+
+    const hashedPassword = await this.hashSecret(data.newPassword);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    const newTokens = await this.getTokens(user.id, user.email);
+    await this.usersService.updateRefreshToken({
+      userId: user.id,
+      plainToken: newTokens.refreshToken,
+    });
+
+    return {
+      type: 'success',
+      error: null,
+      data: {
+        id: user.id,
+        email: user.email,
+        accessToken: newTokens.accessToken,
+        refreshToken: newTokens.refreshToken,
+      },
+    };
+  }
+
+  public async otpVerify(data: OtpVerifyDTO) {
+    const user = await this.usersService.findUserByEmail(data.email);
+
+    if (!user) {
+      throw new BadRequestException('Incorrect credentials');
+    }
+    if (user.otpCode === data.code) {
+      // Check credentials
+      const timeNow = moment().utc(false);
+      const otpExpiry = moment(user.otpExpiry).utc(false);
+
+      if (timeNow.isSameOrBefore(otpExpiry)) {
+        const { accessToken } = await this.getTokens(user.id, user.email);
+        user.otpCode = '';
+        user.otpExpiry = null;
+        await user.save();
+        return { accessToken };
+      } else {
+        throw new BadRequestException('Expired Code');
+      }
+    } else {
+      throw new BadRequestException('Incorrect credentials');
+    }
   }
 }

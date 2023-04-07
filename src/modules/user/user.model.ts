@@ -35,6 +35,18 @@ export class User extends Model<User> {
   })
   timezone: string;
 
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  otpCode: string;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  otpExpiry: string;
+
   @Default({ autoMove: false })
   @Column(DataType.JSONB)
   prefs!: object;
