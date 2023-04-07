@@ -212,7 +212,7 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('Incorrect credentials');
     }
-
+    console.log('USER: ', user);
     if (user.otpCode === data.code) {
       // Check credentials
       const timeNow = moment().utc(false);
@@ -221,7 +221,7 @@ export class AuthService {
       if (timeNow.isSameOrBefore(otpExpiry)) {
         const { accessToken } = await this.getTokens(user.id, user.email);
         user.otpCode = '';
-        user.otpExpiry = '';
+        user.otpExpiry = null;
         await user.save();
         return { accessToken };
       } else {
