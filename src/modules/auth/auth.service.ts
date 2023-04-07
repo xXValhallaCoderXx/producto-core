@@ -21,6 +21,7 @@ import { InvalidCredentials } from 'src/exceptions/api-exceptions';
 
 import { ConfigService } from '@nestjs/config';
 import * as moment from 'moment-timezone';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class AuthService {
@@ -172,13 +173,26 @@ export class AuthService {
   }
 
   public async otpRequest(data: OtpRequestDTO) {
+    const otpCode = [...Array(6)].map((_) => (Math.random() * 10) | 0).join('');
     const user = await this.usersService.createUserOTP({
       email: data.email,
-      otpCode: [...Array(6)].map((_) => (Math.random() * 10) | 0).join(''),
+      otpCode,
     });
 
     if (user) {
-      console.log('USER EXISTS SEND EMAIL');
+      const client = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+          user: 'producto.alpha@gmail.com',
+          pass: this.configService.get<string>('GOOGLE_APP_PASSWORD'),
+        },
+      });
+      client.sendMail({
+        from: 'producto.alpha@gmail.com',
+        to: data.email,
+        subject: 'Producto OTP Code',
+        text: `Your OTP code is ${otpCode}`,
+      });
     }
 
     return true;
