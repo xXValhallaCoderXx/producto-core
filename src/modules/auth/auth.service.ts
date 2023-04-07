@@ -170,7 +170,7 @@ export class AuthService {
   public async otpRequest(data: OtpRequestDTO) {
     const user = await this.usersService.createUserOTP({
       email: data.email,
-      otpCode: '12345',
+      otpCode: [...Array(6)].map((_) => (Math.random() * 10) | 0).join(''),
     });
 
     if (user) {
