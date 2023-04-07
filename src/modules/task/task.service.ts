@@ -96,14 +96,6 @@ export class TaskService {
         autoMove: false,
       },
     ]);
-
-    // return await this.taskModel.create<Task>({
-    //   ...data,
-    // completed: false,
-    // userId: req.user.id,
-    // deadline: data.deadline,
-    // autoMove,
-    // });
   }
 
   moveSpecificTasksToToday = async (body: MoveTasksDTO, req: any) => {
