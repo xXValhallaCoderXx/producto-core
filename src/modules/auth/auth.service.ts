@@ -7,13 +7,19 @@ import {
 } from '@nestjs/common';
 import { UsersService } from 'src/modules/user/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { AuthUserDTO } from './auth.dto';
+import {
+  AuthUserDTO,
+  OtpRequestDTO,
+  OtpVerifyDTO,
+  ForgotPasswordUpdate,
+} from './auth.dto';
 import { CreateUserDTO } from '../user/user.dto';
 import { User } from '../user/user.model';
 import { PostgresErrorCode } from 'src/exceptions/db-exceptions';
 import { InvalidCredentials } from 'src/exceptions/api-exceptions';
 
 import { ConfigService } from '@nestjs/config';
+import * as moment from 'moment-timezone';
 
 @Injectable()
 export class AuthService {
@@ -159,5 +165,70 @@ export class AuthService {
     ]);
 
     return { accessToken, refreshToken };
+  }
+
+  public async otpRequest(data: OtpRequestDTO) {
+    const user = await this.usersService.createUserOTP({
+      email: data.email,
+      otpCode: '12345',
+    });
+
+    if (user) {
+      console.log('USER EXISTS SEND EMAIL');
+    }
+
+    return true;
+  }
+
+  public async otpUpdatePassword(userCreds, data: ForgotPasswordUpdate) {
+    const user = await this.usersService.findUserById(userCreds.id);
+
+    const hashedPassword = await this.hashSecret(data.newPassword);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    const newTokens = await this.getTokens(user.id, user.email);
+    await this.usersService.updateRefreshToken({
+      userId: user.id,
+      plainToken: newTokens.refreshToken,
+    });
+
+    return {
+      type: 'success',
+      error: null,
+      data: {
+        id: user.id,
+        email: user.email,
+        accessToken: newTokens.accessToken,
+        refreshToken: newTokens.refreshToken,
+      },
+    };
+  }
+
+  public async otpVerify(data: OtpVerifyDTO) {
+    const user = await this.usersService.findUserByEmail(data.email);
+
+    if (!user) {
+      throw new BadRequestException('Incorrect credentials');
+    }
+
+    if (user.otpCode === data.code) {
+      // Check credentials
+      const timeNow = moment().utc(false);
+      const otpExpiry = moment(user.otpExpiry).utc(false);
+
+      if (timeNow.isSameOrBefore(otpExpiry)) {
+        const { accessToken } = await this.getTokens(user.id, user.email);
+        user.otpCode = '';
+        user.otpExpiry = '';
+        await user.save();
+        return { accessToken };
+      } else {
+        throw new BadRequestException('Expired Code');
+      }
+    } else {
+      throw new BadRequestException('Incorrect credentials');
+    }
   }
 }

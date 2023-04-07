@@ -10,7 +10,6 @@ import {
   CreateTaskDTO,
   UpdateTaskDTO,
   UpdateTaskParams,
-  MoveIncompleteDTO,
   MoveTasksDTO,
 } from './task.dto';
 import { UsersService } from 'src/modules/user/users.service';
@@ -160,12 +159,11 @@ export class TaskService {
     req: any,
     param: UpdateTaskParams,
   ): Promise<any> {
-    console.log('DATA: ', data);
     const [rowsUpdated] = await this.taskModel.update<Task>(
       { ...data },
       { where: { id: param.id, userId: req.user.id } },
     );
-    console.log('ROWS: ', rowsUpdated);
+
     if (rowsUpdated === 1) {
       return {
         type: 'success',

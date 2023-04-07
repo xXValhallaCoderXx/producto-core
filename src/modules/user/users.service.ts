@@ -13,6 +13,7 @@ import {
   InvalidCredentials,
   RecordNotFound,
 } from 'src/exceptions/api-exceptions';
+import * as moment from 'moment-timezone';
 @Injectable()
 export class UsersService {
   constructor(
@@ -145,6 +146,27 @@ export class UsersService {
     }
     const hashedToken = await this.hashPassword(plainToken);
     user.refeshToken = hashedToken;
+    await user.save();
+    return user;
+  }
+
+  async createUserOTP({ email, otpCode }): Promise<User> {
+    const user = await this.userModel.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    const timeNow = moment.utc();
+    const fiveMinutesNow = timeNow.utc(false).add(5, 'minutes').format();
+
+    user.otpCode = otpCode;
+    user.otpExpiry = fiveMinutesNow;
+
     await user.save();
     return user;
   }

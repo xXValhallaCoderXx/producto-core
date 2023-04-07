@@ -2,6 +2,7 @@ import {
   IsNotEmpty,
   IsEmail,
   MinLength,
+  IsNumberString,
   MaxLength,
   IsString,
   IsOptional,
@@ -35,4 +36,26 @@ export class UpdateEmailDTO {
   @IsNotEmpty()
   @IsEmail()
   email: string;
+}
+
+export class OtpRequestDTO {
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+}
+
+export class OtpVerifyDTO {
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  @IsNumberString()
+  code: string;
+}
+
+export class ForgotPasswordUpdate {
+  @IsNotEmpty()
+  @IsString()
+  newPassword: string;
 }
