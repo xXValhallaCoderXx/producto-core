@@ -21,9 +21,9 @@ import { UserTaskModule } from './modules/user-task/user-task.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       // logging: false,
-      // sync: {
-      //   force: true,
-      // },
+      sync: {
+        force: true,
+      },
       synchronize: true,
       autoLoadModels: true,
       dialectOptions: {
