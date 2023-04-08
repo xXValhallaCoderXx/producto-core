@@ -75,21 +75,35 @@ export class TaskService {
 
     await this.taskModel.bulkCreate<Task>([
       {
-        title: 'Long press task to enter edit mode',
+        title: 'Tap a task to mark it as complete',
         completed: false,
         userId: user.id,
         deadline: timeNow.toISOString(),
         autoMove: false,
       },
       {
-        title: 'You can delete tasks in edit mode',
+        title: 'Press and hold to edit',
         completed: false,
         userId: user.id,
         deadline: timeNow.toISOString(),
         autoMove: false,
       },
       {
-        title: 'You can rearrange tasks in edit mode',
+        title: 'Hold onto drag icon to rearrange',
+        completed: false,
+        userId: user.id,
+        deadline: timeNow.toISOString(),
+        autoMove: false,
+      },
+      {
+        title: 'Tap on delete icon to remove task',
+        completed: false,
+        userId: user.id,
+        deadline: timeNow.toISOString(),
+        autoMove: false,
+      },
+      {
+        title: 'Tap elsehwere to dismiss keyboard',
         completed: false,
         userId: user.id,
         deadline: timeNow.toISOString(),
@@ -225,7 +239,7 @@ export class TaskService {
     }
   }
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_10_SECONDS)
   async autoMoveTasks() {
     const uniqueTimezones = await this.usersService.findAll({
       where: {
