@@ -48,7 +48,6 @@ export class TaskService {
   }
 
   async deleteAll(userId: any): Promise<number> {
-    console.log('USER ID: ', userId);
     const tasks = await this.taskModel.destroy({
       where: {
         userId,
