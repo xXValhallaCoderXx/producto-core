@@ -38,3 +38,8 @@ $ npm run test:cov
 - Closely work with DTO
   - A DTO is an object that defines how the data will be sent over the network.
   - Use classes as TypeScript interfaces are removed during the transpilation, Nest can't refer to them at runtime
+
+### Heroku Info
+
+- Get Env Variables `heroku config`
+- Set Env Variable `heroku config:set GITHUB_USERNAME=joesmith`
