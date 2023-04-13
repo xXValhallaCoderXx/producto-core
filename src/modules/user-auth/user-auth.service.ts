@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '../user/users.service';
 import { AuthService } from '../auth/auth.service';
+import { TaskService } from '../task/task.service';
 import { UpdateEmailDTO } from './user-auth.dto';
 import { User } from '../user/user.model';
 
@@ -9,6 +10,7 @@ export class UserProfileService {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UsersService,
+    private readonly taskService: TaskService,
   ) {}
 
   public async updateUserEmail(userId: any, body: UpdateEmailDTO) {
@@ -35,5 +37,13 @@ export class UserProfileService {
     return {
       tokens: newTokens,
     };
+  }
+
+  public async deleteUserAccount(userId: any) {
+    const user = await this.userService.findUserById(userId);
+    const deletedTasks = await this.taskService.deleteAll(userId);
+    const deletedUser = await this.userService.deleteUser(userId);
+
+    return true;
   }
 }

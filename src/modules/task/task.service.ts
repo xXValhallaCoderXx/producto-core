@@ -26,7 +26,6 @@ export class TaskService {
   ) {}
 
   async findAll(req: any, query: any): Promise<Task[]> {
-    console.log('QUERY: ', new Date(query.end));
     const tasks = await this.taskModel.findAll({
       where: {
         userId: req.user.id,
@@ -44,6 +43,16 @@ export class TaskService {
         'focus',
         'deadline',
       ],
+    });
+    return tasks;
+  }
+
+  async deleteAll(userId: any): Promise<number> {
+    console.log('USER ID: ', userId);
+    const tasks = await this.taskModel.destroy({
+      where: {
+        userId,
+      },
     });
     return tasks;
   }
@@ -103,7 +112,14 @@ export class TaskService {
         autoMove: false,
       },
       {
-        title: 'Tap elsehwere to dismiss keyboard',
+        title: 'Tap elsewhere to dismiss keyboard',
+        completed: false,
+        userId: user.id,
+        deadline: timeNow.toISOString(),
+        autoMove: false,
+      },
+      {
+        title: 'Toggle key to add task into focus mode',
         completed: false,
         userId: user.id,
         deadline: timeNow.toISOString(),
