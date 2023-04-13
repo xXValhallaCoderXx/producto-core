@@ -3,6 +3,7 @@ import {
   Request,
   UseGuards,
   Patch,
+  Get,
   Body,
   UsePipes,
   ValidationPipe,
@@ -20,5 +21,11 @@ export class UserProfileController {
   @Patch('update-email')
   async updateEmail(@Request() req, @Body() body: UpdateEmailDTO) {
     return this.userProfileService.updateUserEmail(req.user.id, body);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('delete-account')
+  async deleteAccount(@Request() req) {
+    return this.userProfileService.deleteUserAccount(req.user.id);
   }
 }

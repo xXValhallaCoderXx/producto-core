@@ -134,6 +134,16 @@ export class UsersService {
     return user;
   }
 
+  async deleteUser(userId: any): Promise<number> {
+    const user = await this.userModel.destroy({
+      where: {
+        id: userId,
+      },
+    });
+
+    return user;
+  }
+
   async updateRefreshToken({ userId, plainToken }): Promise<User> {
     const user = await this.userModel.findOne({
       where: {
