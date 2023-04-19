@@ -97,28 +97,7 @@ export class TaskService {
         autoMove: false,
       },
       {
-        title: 'Hold onto drag icon to rearrange',
-        completed: false,
-        userId: user.id,
-        deadline: timeNow.toISOString(),
-        autoMove: false,
-      },
-      {
-        title: 'Tap on delete icon to remove task',
-        completed: false,
-        userId: user.id,
-        deadline: timeNow.toISOString(),
-        autoMove: false,
-      },
-      {
         title: 'Tap elsewhere to dismiss keyboard',
-        completed: false,
-        userId: user.id,
-        deadline: timeNow.toISOString(),
-        autoMove: false,
-      },
-      {
-        title: 'Toggle key to add task into focus mode',
         completed: false,
         userId: user.id,
         deadline: timeNow.toISOString(),
