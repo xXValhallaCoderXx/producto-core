@@ -128,6 +128,9 @@ export class TaskService {
   // NOT YET CHANGED
 
   async findAllIncompleteTasks(req: any): Promise<string[]> {
+    const user = await this.usersService.findUserById(req.user.id);
+    const timezone = user.timezone;
+
     const incompleteDates = await this.taskModel.findAll({
       where: {
         userId: req.user.id,
@@ -143,10 +146,11 @@ export class TaskService {
         'deadline',
       ],
     });
+
     const incompleteTasksOn = [
       ...new Set(
         incompleteDates.map((item) =>
-          moment(item.deadline).format('YYYY-MM-DD'),
+          moment(item.deadline).tz(timezone).format('YYYY-MM-DD'),
         ),
       ),
     ];
