@@ -49,7 +49,7 @@ export class UsersService {
       where: {
         id,
       },
-      attributes: ['id', 'email', 'prefs', 'password'],
+      attributes: ['id', 'email', 'prefs', 'password', 'timezone'],
     });
 
     if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
