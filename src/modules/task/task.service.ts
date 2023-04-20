@@ -108,7 +108,7 @@ export class TaskService {
 
   moveSpecificTasksToToday = async (body: MoveTasksDTO, req: any) => {
     await this.taskModel.update(
-      { deadline: moment(body.to).format('YYYY-MM-DD') },
+      { deadline: body.to },
       {
         where: {
           userId: req.user.id,
