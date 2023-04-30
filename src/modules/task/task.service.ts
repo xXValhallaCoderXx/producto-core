@@ -135,6 +135,9 @@ export class TaskService {
       where: {
         userId: req.user.id,
         completed: false,
+        deadline: {
+          [Op.lt]: new Date(),
+        },
       },
       order: [['createdAt', 'ASC']],
       attributes: [
