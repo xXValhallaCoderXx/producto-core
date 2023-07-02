@@ -58,24 +58,29 @@ export class TaskService {
 
   async create(data: CreateTaskDTO, req: any): Promise<any> {
     const user = await this.usersService.findUserByEmail(req.user.email);
-    const timeNow = moment().tz(user.timezone);
+    const userTimenow = moment().tz(user.timezone);
+    const userDeadline = moment(data.deadline).tz(user.timezone);
+    console.log('USER DEADLINE: ', moment(data.deadline).tz(user.timezone));
     console.log('CREATE');
     console.log('USER TIME NOW: ', data.deadline);
-    console.log('DEADLINE: ', String(timeNow));
+    // console.log('DEADLINE: ', String(timeNow));
     if (!user) {
       return null;
     }
 
-    const dateToCheck = moment(data.deadline);
-    const referenceDate = moment(timeNow);
+    const dateToCheck = userDeadline;
+    const referenceDate = userTimenow;
 
     const isDayBefore = dateToCheck.isSame(
       referenceDate.subtract(1, 'day'),
       'day',
     );
 
+    console.log('IS BEFORE: ', isDayBefore);
+
     // @ts-ignore
     const autoMove = isDayBefore ? false : user.prefs?.autoMove ?? false;
+    console.log('AUTO MOVE: ', autoMove);
 
     return await this.taskModel.create<Task>({
       ...data,
