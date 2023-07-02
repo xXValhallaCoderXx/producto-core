@@ -305,19 +305,16 @@ export class TaskService {
             const dateToCheck = moment(task.deadline).tz(timezone);
             const referenceDate = moment(timeNow);
 
-            const isDayBefore = dateToCheck.isSame(
-              referenceDate.subtract(1, 'day'),
-              'day',
-            );
+            const isDayBefore = dateToCheck.isBefore(referenceDate);
 
             if (isDayBefore) {
-              // console.log('INDEX: ', index);
-              // console.log('The date is the day before the reference date.');
+              console.log('INDEX: ', index);
+              console.log('The date is the day before the reference date.');
 
-              // console.log('TITLE: ', task.title);
-              // console.log('TIME NOW: ', timeNow);
-              // console.log('dateToCheck: ', dateToCheck);
-              // console.log('referenceDate: ', referenceDate);
+              console.log('TITLE: ', task.title);
+              console.log('TIME NOW: ', timeNow);
+              console.log('dateToCheck: ', dateToCheck);
+              console.log('referenceDate: ', referenceDate);
               const newDeadline = moment(task.deadline).add(1, 'days');
 
               // console.log('NEW DATE: ', newDeadline);
@@ -326,7 +323,7 @@ export class TaskService {
             }
           });
         }
-        // console.log('BATCH ENDED');
+        console.log('BATCH ENDED');
       }
     } else {
       this.logger.debug('No timezones found');
