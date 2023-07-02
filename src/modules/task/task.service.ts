@@ -58,6 +58,7 @@ export class TaskService {
 
   async create(data: CreateTaskDTO, req: any): Promise<any> {
     const user = await this.usersService.findUserByEmail(req.user.email);
+    const timeNow = moment().tz(user.timezone);
     if (!user) {
       return null;
     }
@@ -68,7 +69,7 @@ export class TaskService {
       ...data,
       completed: false,
       userId: req.user.id,
-      deadline: data.deadline,
+      deadline: String(timeNow),
       autoMove,
     });
   }
@@ -86,37 +87,38 @@ export class TaskService {
         title: 'Tap a task to mark it as complete',
         completed: false,
         userId: user.id,
-        deadline: timeNow.toISOString(),
+        deadline: String(timeNow),
         autoMove: false,
       },
       {
         title: 'Press and hold to edit',
         completed: false,
         userId: user.id,
-        deadline: timeNow.toISOString(),
+        deadline: String(timeNow),
         autoMove: false,
       },
       {
         title: 'Tap elsewhere to dismiss keyboard',
         completed: false,
         userId: user.id,
-        deadline: timeNow.toISOString(),
+        deadline: String(timeNow),
         autoMove: false,
       },
     ]);
   }
 
   moveSpecificTasksToToday = async (body: MoveTasksDTO, req: any) => {
-    await this.taskModel.update(
-      { deadline: body.to },
-      {
-        where: {
-          userId: req.user.id,
-          id: body.tasks,
-          completed: false,
-        },
-      },
-    );
+    const user = await this.usersService.findUserByEmail(req.user.email);
+    const timeNow = moment().tz(user.timezone);
+    const tasks = await this.taskModel.findAll({
+      where: { id: body.tasks, completed: false },
+    });
+
+    tasks.forEach(async (task) => {
+      const newDeadline = moment(timeNow);
+      task.deadline = String(newDeadline);
+      await task.save();
+    });
 
     return {
       type: 'success',
@@ -240,7 +242,7 @@ export class TaskService {
     }
   }
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_10_SECONDS)
   async autoMoveTasks() {
     const uniqueTimezones = await this.usersService.findAll({
       where: {
@@ -258,12 +260,8 @@ export class TaskService {
     if (timezones.length > 0) {
       for await (const timezone of timezones) {
         const timeNow = moment().tz(timezone);
-
         const startBase = timeNow.clone();
-        const endBase = timeNow.clone();
-
-        const endOfCurrentDay = startBase.endOf('day').utc(false);
-        const startOfNextDay = endBase.startOf('day').utc(false).add(1, 'day');
+        const endOfCurrentDay = startBase.endOf('day');
 
         const tasks = await this.taskModel.findAll({
           where: {
@@ -286,17 +284,15 @@ export class TaskService {
         });
 
         const taskIds = tasks.map((task) => task.id);
-        if (taskIds.length > 0) {
-          await this.taskModel.update(
-            {
-              deadline: startOfNextDay,
-            },
-            {
-              where: {
-                id: taskIds,
-              },
-            },
-          );
+
+        if (timeNow.isAfter(endOfCurrentDay)) {
+          if (taskIds.length > 0) {
+            tasks.forEach(async (task) => {
+              const newDeadline = moment(timeNow).add(1, 'days');
+              task.deadline = String(newDeadline);
+              await task.save();
+            });
+          }
         }
       }
     } else {
@@ -323,17 +319,3 @@ export class TaskService {
     }
   }
 }
-
-// timezones.forEach((timezone) => {
-//   const tasks = await this.taskModel.findAll({
-//     include: [{ model: User }],
-//   });
-//   // const now = moment().utc();
-//   // console.log(now.tz(timezone).format('HH:mm:ss'));
-//   // console.log(now.tz(timezone).format('mm'));
-
-//   // const roundUp = now.startOf('hour').format('HH');
-//   // console.log('ROUND UP: ', roundUp);
-
-//   const now = moment();
-// });
