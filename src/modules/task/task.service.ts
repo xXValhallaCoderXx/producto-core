@@ -59,6 +59,9 @@ export class TaskService {
   async create(data: CreateTaskDTO, req: any): Promise<any> {
     const user = await this.usersService.findUserByEmail(req.user.email);
     const timeNow = moment().tz(user.timezone);
+    console.log('CREATE');
+    console.log('USER TIME NOW: ', timeNow);
+    console.log('DEADLINE: ', String(timeNow));
     if (!user) {
       return null;
     }
@@ -284,7 +287,7 @@ export class TaskService {
         });
 
         const taskIds = tasks.map((task) => task.id);
-        // console.log('BATCH START');
+        console.log('BATCH START');
         if (taskIds.length > 0) {
           tasks.forEach(async (task, index) => {
             const dateToCheck = moment(task.deadline).tz(timezone);
@@ -296,16 +299,16 @@ export class TaskService {
             );
 
             if (isDayBefore) {
-              // console.log('INDEX: ', index);
-              // console.log('The date is the day before the reference date.');
+              console.log('INDEX: ', index);
+              console.log('The date is the day before the reference date.');
 
-              // console.log('TITLE: ', task.title);
-              // console.log('TIME NOW: ', timeNow);
-              // console.log('dateToCheck: ', dateToCheck);
-              // console.log('referenceDate: ', referenceDate);
+              console.log('TITLE: ', task.title);
+              console.log('TIME NOW: ', timeNow);
+              console.log('dateToCheck: ', dateToCheck);
+              console.log('referenceDate: ', referenceDate);
               const newDeadline = moment(task.deadline).add(1, 'days');
 
-              // console.log('NEW DATE: ', newDeadline);
+              console.log('NEW DATE: ', newDeadline);
               task.deadline = String(newDeadline);
               await task.save();
             } else {
@@ -313,7 +316,7 @@ export class TaskService {
             }
           });
         }
-        // console.log('BATCH ENDED');
+        console.log('BATCH ENDED');
       }
     } else {
       this.logger.debug('No timezones found');
