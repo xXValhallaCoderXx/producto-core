@@ -314,10 +314,10 @@ export class TaskService {
               console.log('TIME NOW: ', timeNow);
               console.log('dateToCheck: ', dateToCheck);
               console.log('referenceDate: ', timeNow);
-              const newDeadline = moment(task.deadline).add(1, 'days');
+              // const newDeadline = moment(task.deadline).add(1, 'days');
 
-              console.log('NEW DATE: ', newDeadline);
-              task.deadline = String(newDeadline);
+              console.log('NEW DATE: ', timeNow);
+              task.deadline = String(timeNow);
               await task.save();
             }
           });
