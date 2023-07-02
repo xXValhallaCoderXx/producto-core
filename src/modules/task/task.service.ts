@@ -303,9 +303,8 @@ export class TaskService {
         if (taskIds.length > 0) {
           tasks.forEach(async (task, index) => {
             const dateToCheck = moment(task.deadline).tz(timezone);
-            const referenceDate = moment(timeNow);
 
-            const isDayBefore = dateToCheck.isBefore(referenceDate);
+            const isDayBefore = dateToCheck.isBefore(timeNow, 'day');
 
             if (isDayBefore) {
               console.log('INDEX: ', index);
@@ -314,10 +313,10 @@ export class TaskService {
               console.log('TITLE: ', task.title);
               console.log('TIME NOW: ', timeNow);
               console.log('dateToCheck: ', dateToCheck);
-              console.log('referenceDate: ', referenceDate);
+              console.log('referenceDate: ', timeNow);
               const newDeadline = moment(task.deadline).add(1, 'days');
 
-              // console.log('NEW DATE: ', newDeadline);
+              console.log('NEW DATE: ', newDeadline);
               task.deadline = String(newDeadline);
               await task.save();
             }
