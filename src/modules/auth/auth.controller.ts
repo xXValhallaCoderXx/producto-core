@@ -11,7 +11,13 @@ import { AuthService } from './auth.service';
 import { LocalAuthGuard } from 'src/guards/local.auth.guard';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
 import { RefreshTokenAuthGuard } from 'src/guards/jwt-refresh.auth.guard';
-import { AuthUserDTO, VerifyEmailParams } from './auth.dto';
+import {
+  AuthUserDTO,
+  VerifyEmailParams,
+  OtpRequestDTO,
+  OtpVerifyDTO,
+  ForgotPasswordUpdate,
+} from './auth.dto';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -35,6 +41,25 @@ export class AuthController {
   @Post('register')
   async register(@Body() registerUserDto: AuthUserDTO) {
     return this.authService.registerAccount(registerUserDto);
+  }
+
+  @Post('otp-request')
+  async otpRequest(@Body() otpRequestData: OtpRequestDTO) {
+    return this.authService.otpRequest(otpRequestData);
+  }
+
+  @Post('otp-verify')
+  async otpVerify(@Body() otpVerifyData: OtpVerifyDTO) {
+    return this.authService.otpVerify(otpVerifyData);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('forgot-password-update')
+  async forgotPasswordUpdate(
+    @Request() req,
+    @Body() otpVerifyData: ForgotPasswordUpdate,
+  ) {
+    return this.authService.otpUpdatePassword(req.user, otpVerifyData);
   }
 
   @Get('verify-email')

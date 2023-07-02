@@ -13,6 +13,7 @@ import {
   InvalidCredentials,
   RecordNotFound,
 } from 'src/exceptions/api-exceptions';
+import * as moment from 'moment-timezone';
 @Injectable()
 export class UsersService {
   constructor(
@@ -48,7 +49,7 @@ export class UsersService {
       where: {
         id,
       },
-      attributes: ['id', 'email', 'prefs', 'password'],
+      attributes: ['id', 'email', 'prefs', 'password', 'timezone'],
     });
 
     if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -133,6 +134,16 @@ export class UsersService {
     return user;
   }
 
+  async deleteUser(userId: any): Promise<number> {
+    const user = await this.userModel.destroy({
+      where: {
+        id: userId,
+      },
+    });
+
+    return user;
+  }
+
   async updateRefreshToken({ userId, plainToken }): Promise<User> {
     const user = await this.userModel.findOne({
       where: {
@@ -145,6 +156,27 @@ export class UsersService {
     }
     const hashedToken = await this.hashPassword(plainToken);
     user.refeshToken = hashedToken;
+    await user.save();
+    return user;
+  }
+
+  async createUserOTP({ email, otpCode }): Promise<User> {
+    const user = await this.userModel.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    const timeNow = moment.utc();
+    const fiveMinutesNow = timeNow.utc(false).add(5, 'minutes').format();
+
+    user.otpCode = otpCode;
+    user.otpExpiry = fiveMinutesNow;
+
     await user.save();
     return user;
   }
