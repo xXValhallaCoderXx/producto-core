@@ -60,19 +60,28 @@ export class TaskService {
     const user = await this.usersService.findUserByEmail(req.user.email);
     const timeNow = moment().tz(user.timezone);
     console.log('CREATE');
-    console.log('USER TIME NOW: ', timeNow);
+    console.log('USER TIME NOW: ', data.deadline);
     console.log('DEADLINE: ', String(timeNow));
     if (!user) {
       return null;
     }
+
+    const dateToCheck = moment(data.deadline);
+    const referenceDate = moment(timeNow);
+
+    const isDayBefore = dateToCheck.isSame(
+      referenceDate.subtract(1, 'day'),
+      'day',
+    );
+
     // @ts-ignore
-    const autoMove = user.prefs?.autoMove ?? false;
+    const autoMove = isDayBefore ? false : user.prefs?.autoMove ?? false;
 
     return await this.taskModel.create<Task>({
       ...data,
       completed: false,
       userId: req.user.id,
-      deadline: String(timeNow),
+      deadline: data.deadline,
       autoMove,
     });
   }
