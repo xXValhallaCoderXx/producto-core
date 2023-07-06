@@ -283,6 +283,7 @@ export class TaskService {
             deadline: {
               [Op.lte]: endOfCurrentDay,
             },
+            completed: false,
             autoMove: true,
           },
           include: [
